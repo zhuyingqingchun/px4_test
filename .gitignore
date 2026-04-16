@@ -1,0 +1,36 @@
+# Python
+__pycache__/
+*.py[cod]
+*.so
+*.egg-info/
+
+# ROS 2 build outputs
+build/
+install/
+log/
+
+# IDE / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
+
+# Local data / downloads / private dirs
+Documents/
+Micro-XRCE-DDS-Agent/
+patch/
+px4_session_logs/
+
+# Third-party repos kept outside this repo scope
+px4_ros2_ws/src/px4_msgs/
+px4_ros2_ws/src/px4_ros_com/
+
+# Runtime local config
+px4sh/config.env
+!px4sh/config.env.example
+
+# Optional: ignore generated docs only, not all markdown
+px4sh/docs/
