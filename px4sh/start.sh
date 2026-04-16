@@ -17,6 +17,15 @@ LOG_TERMINAL_MODE="${LOG_TERMINAL_MODE:-concise}"
 #   standalone -> 由你单独提供 GZ_SERVER_CMD 启动 Gazebo，PX4 用 PX4_GZ_STANDALONE=1 连接
 GZ_MODE="${GZ_MODE:-managed}"
 
+# Gazebo 进程防呆：
+# 在 managed 模式下，如果系统里已经有 Gazebo / gz sim / ign gazebo 相关进程，
+# 默认直接报错退出，防止"手动起了一次，PX4 又再起一次"。
+DETECT_EXISTING_GZ="${DETECT_EXISTING_GZ:-1}"
+FAIL_ON_EXISTING_GZ_IN_MANAGED="${FAIL_ON_EXISTING_GZ_IN_MANAGED:-1}"
+
+# 仅用于日志展示，方便排查当前到底是谁负责起 Gazebo
+GZ_OWNER_DESC=""
+
 # managed 模式下：
 #   HEADLESS=0 -> PX4 自己拉起带 GUI 的 Gazebo
 #   HEADLESS=1 -> PX4 自己拉起无 GUI 的 Gazebo
@@ -135,6 +144,30 @@ wait_for_cmd() {
   done
 }
 
+gz_process_running() {
+  pgrep -fa '(^|/)(gz|gazebo)([[:space:]]|$)|ign[[:space:]]+gazebo|gz[[:space:]]+sim' >/dev/null 2>&1
+}
+
+show_existing_gz_processes() {
+  pgrep -fa '(^|/)(gz|gazebo)([[:space:]]|$)|ign[[:space:]]+gazebo|gz[[:space:]]+sim' || true
+}
+
+preflight_check_gz_mode() {
+  if [[ "$DETECT_EXISTING_GZ" != "1" ]]; then
+    return 0
+  fi
+
+  if [[ "$GZ_MODE" == "managed" ]] && gz_process_running; then
+    log "[WARN] Detected existing Gazebo-related process(es) before startup:"
+    show_existing_gz_processes
+    if [[ "$FAIL_ON_EXISTING_GZ_IN_MANAGED" == "1" ]]; then
+      log "[ERROR] GZ_MODE=managed means PX4 will manage Gazebo itself."
+      log "[ERROR] Stop the existing Gazebo first, or switch to GZ_MODE=standalone."
+      exit 1
+    fi
+  fi
+}
+
 tmux_new_or_select_window() {
   local name="$1"
   if tmux list-windows -t "$SESSION_NAME" -F '#W' | grep -qx "$name"; then
@@ -162,6 +195,7 @@ case "$GZ_MODE" in
       PX4_BASE_CMD+="HEADLESS=1 "
     fi
     PX4_BASE_CMD+="make px4_sitl $PX4_TARGET"
+    GZ_OWNER_DESC="PX4 managed (make px4_sitl $PX4_TARGET)"
     ;;
   standalone)
     if [[ -z "$GZ_SERVER_CMD" ]]; then
@@ -169,6 +203,7 @@ case "$GZ_MODE" in
       exit 1
     fi
     PX4_BASE_CMD+="PX4_GZ_STANDALONE=1 make px4_sitl $PX4_TARGET"
+    GZ_OWNER_DESC="external standalone command"
     ;;
   *)
     log "[ERROR] Unsupported GZ_MODE: $GZ_MODE (expected: managed or standalone)"
@@ -246,6 +281,11 @@ LOGS_CMD_LINE="bash -lc 'echo \"Logs: $THIS_LOG_DIR\"; ls -lah \"$THIS_LOG_DIR\"
 # -----------------------------
 # 创建 tmux session
 # -----------------------------
+
+preflight_check_gz_mode
+log "[INFO] Gazebo startup mode: $GZ_MODE"
+log "[INFO] Gazebo owner: $GZ_OWNER_DESC"
+
 tmux new-session -d -s "$SESSION_NAME" -n px4
 tmux set-option -t "$SESSION_NAME" remain-on-exit on >/dev/null
 tmux set-option -t "$SESSION_NAME" mouse on >/dev/null
@@ -259,7 +299,8 @@ if [[ -n "$AGENT_CMD_LINE" ]]; then
   tmux_run_in_window "agent" "$AGENT_CMD_LINE"
 fi
 
-# 2) standalone 模式才单独启动 Gazebo
+# 2) standalone 模式才单独启动 Gazebo。
+#    managed 模式下绝不在这里额外起 Gazebo，避免与 `make px4_sitl` 重复。
 if [[ -n "$GZ_SERVER_CMD_LINE" ]]; then
   tmux_run_in_window "gz" "$GZ_SERVER_CMD_LINE"
   sleep 3
@@ -293,6 +334,7 @@ tmux select-window -t "$SESSION_NAME:px4"
 log "Session created: $SESSION_NAME"
 log "Logs: $THIS_LOG_DIR"
 log "Gazebo mode: $GZ_MODE"
+log "Gazebo owner: $GZ_OWNER_DESC"
 log "HEADLESS: $HEADLESS"
 
 exec tmux attach -t "$SESSION_NAME"
