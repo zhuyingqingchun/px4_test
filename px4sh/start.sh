@@ -189,6 +189,11 @@ tmux_run_in_window() {
 # -----------------------------
 PX4_BASE_CMD="cd '$PX4_DIR' && "
 
+if [[ "$GZ_MODE" == "managed" ]]; then
+  # managed 模式下由 `make px4_sitl gz_xxx` 自己拉起 Gazebo
+  GZ_SERVER_CMD=""
+fi
+
 case "$GZ_MODE" in
   managed)
     if [[ "$HEADLESS" == "1" ]]; then
@@ -202,6 +207,12 @@ case "$GZ_MODE" in
       log "[ERROR] GZ_MODE=standalone 时必须提供 GZ_SERVER_CMD"
       exit 1
     fi
+
+    if pgrep -f "gz sim" >/dev/null 2>&1; then
+      log "[WARN] Gazebo already running, skip standalone Gazebo launch"
+      GZ_SERVER_CMD=""
+    fi
+
     PX4_BASE_CMD+="PX4_GZ_STANDALONE=1 make px4_sitl $PX4_TARGET"
     GZ_OWNER_DESC="external standalone command"
     ;;
@@ -246,6 +257,8 @@ if [[ -n "$ROS_WS" && -f "$ROS_WS/install/setup.bash" ]]; then
   ROS_ENV_CMD+=" && source '$ROS_WS/install/setup.bash'"
 elif [[ -n "$ROS_WS" && -f "$ROS_WS/install/local_setup.bash" ]]; then
   ROS_ENV_CMD+=" && source '$ROS_WS/install/local_setup.bash'"
+elif [[ "$ENABLE_ROS" == "1" ]]; then
+  log "[WARN] ROS workspace setup not found under: $ROS_WS/install"
 fi
 
 ROS_CMD_LINE=""

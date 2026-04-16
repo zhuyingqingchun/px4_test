@@ -2,7 +2,27 @@
 set -Eeuo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
 CONFIG_FILE="${SCRIPT_DIR}/config.env"
+
+resolve_path() {
+  local value="${1:-}"
+  local base="${2:-$PROJECT_ROOT}"
+
+  [[ -z "$value" ]] && return 0
+
+  case "$value" in
+    ~/*)
+      printf '%s\n' "${HOME}/${value#~/}"
+      ;;
+    /*)
+      printf '%s\n' "$value"
+      ;;
+    *)
+      printf '%s\n' "$(cd "$base" && pwd)/$value"
+      ;;
+  esac
+}
 
 load_config() {
   if [[ ! -f "$CONFIG_FILE" ]]; then
@@ -13,6 +33,15 @@ load_config() {
   fi
   # shellcheck disable=SC1090
   source "$CONFIG_FILE"
+
+  PX4_DIR="$(resolve_path "${PX4_DIR:-}")"
+  ROS_WS="$(resolve_path "${ROS_WS:-}")"
+  QGC_APPIMAGE="$(resolve_path "${QGC_APPIMAGE:-}")"
+  LOG_DIR="$(resolve_path "${LOG_DIR:-$HOME/px4_session_logs}")"
+  RUNTIME_DIR="$(resolve_path "${RUNTIME_DIR:-$HOME/.px4_one_click}")"
+
+  export SCRIPT_DIR PROJECT_ROOT PX4_DIR ROS_WS QGC_APPIMAGE LOG_DIR RUNTIME_DIR
+
   mkdir -p "$LOG_DIR" "$RUNTIME_DIR"
   SESSION_DIR="${RUNTIME_DIR}/current"
   mkdir -p "$SESSION_DIR"
@@ -92,11 +121,15 @@ ensure_prereqs() {
     log "[ERROR] ROS not found: /opt/ros/${ROS_DISTRO}/setup.bash"
     exit 1
   fi
-  if ! resolve_agent_cmd; then
-    log "[ERROR] Agent command not found. Tried, in order: /usr/local/bin/MicroXRCEAgent, MicroXRCEAgent, /snap/bin/micro-xrce-dds-agent, micro-xrce-dds-agent"
-    exit 1
+  if [[ "${ENABLE_AGENT:-1}" == "1" ]]; then
+    if ! resolve_agent_cmd; then
+      log "[ERROR] Agent command not found.
+Tried, in order: /usr/local/bin/MicroXRCEAgent, MicroXRCEAgent, /snap/bin/micro-xrce-dds-agent, micro-xrce-dds-agent"
+      exit 1
+    fi
+
+    log "[INFO] Using Agent command: $AGENT_CMD"
   fi
-  log "[INFO] Using Agent command: $AGENT_CMD"
   if [[ "$ENABLE_QGC" == "1" && ! -x "$QGC_APPIMAGE" ]]; then
     log "[WARN] QGC AppImage missing or not executable: $QGC_APPIMAGE"
   fi
