@@ -3,6 +3,85 @@ set -Eeuo pipefail
 
 source "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/common.sh"
 load_config
+
+# -----------------------------
+# 仓库结构约定与路径解析
+# -----------------------------
+PROJECT_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
+
+resolve_path_from_project_root() {
+  local raw="${1:-}"
+  if [[ -z "$raw" ]]; then
+    return 0
+  fi
+  if [[ "$raw" == /* ]]; then
+    printf '%s\n' "$raw"
+  else
+    printf '%s\n' "${PROJECT_ROOT}/${raw}"
+  fi
+}
+
+pick_first_existing_dir() {
+  local candidate=""
+  local resolved=""
+  for candidate in "$@"; do
+    [[ -z "$candidate" ]] && continue
+    resolved="$(resolve_path_from_project_root "$candidate")"
+    if [[ -d "$resolved" ]]; then
+      printf '%s\n' "$resolved"
+      return 0
+    fi
+  done
+  return 1
+}
+
+pick_first_existing_file() {
+  local candidate=""
+  local resolved=""
+  for candidate in "$@"; do
+    [[ -z "$candidate" ]] && continue
+    resolved="$(resolve_path_from_project_root "$candidate")"
+    if [[ -f "$resolved" ]]; then
+      printf '%s\n' "$resolved"
+      return 0
+    fi
+  done
+  return 1
+}
+
+RAW_PX4_DIR="${PX4_DIR:-}"
+RAW_ROS_WS="${ROS_WS:-}"
+RAW_LOG_DIR="${LOG_DIR:-}"
+RAW_RUNTIME_DIR="${RUNTIME_DIR:-}"
+RAW_QGC_APPIMAGE="${QGC_APPIMAGE:-}"
+
+if PX4_DIR_RESOLVED="$(pick_first_existing_dir \
+  "$RAW_PX4_DIR" \
+  "PX4-Autopilot" \
+  "../PX4-Autopilot")"; then
+  PX4_DIR="$PX4_DIR_RESOLVED"
+else
+  PX4_DIR="$(resolve_path_from_project_root "${RAW_PX4_DIR:-../PX4-Autopilot}")"
+fi
+
+if ROS_WS_RESOLVED="$(pick_first_existing_dir \
+  "$RAW_ROS_WS" \
+  "px4_ros2_ws")"; then
+  ROS_WS="$ROS_WS_RESOLVED"
+else
+  ROS_WS="$(resolve_path_from_project_root "${RAW_ROS_WS:-px4_ros2_ws}")"
+fi
+
+LOG_DIR="$(resolve_path_from_project_root "${RAW_LOG_DIR:-px4_session_logs}")"
+RUNTIME_DIR="$(resolve_path_from_project_root "${RAW_RUNTIME_DIR:-.px4_one_click}")"
+
+if [[ -n "$RAW_QGC_APPIMAGE" ]]; then
+  QGC_APPIMAGE="$(resolve_path_from_project_root "$RAW_QGC_APPIMAGE")"
+fi
+
+mkdir -p "$LOG_DIR" "$RUNTIME_DIR"
+export PROJECT_ROOT PX4_DIR ROS_WS LOG_DIR RUNTIME_DIR QGC_APPIMAGE
+
 ensure_prereqs
 
 # -----------------------------
@@ -59,10 +138,10 @@ GZ_SERVER_CMD="${GZ_SERVER_CMD:-}"
 AGENT_CMD="${AGENT_CMD:-}"
 AGENT_ARGS="${AGENT_ARGS:-}"
 
-ROS_DISTRO="${ROS_DISTRO:-humble}"
+ROS_DISTRO="${ROS_DISTRO:-jazzy}"
 ROS_WS="${ROS_WS:-}"
 ROS_SETUP_EXTRA="${ROS_SETUP_EXTRA:-}"
-OFFBOARD_CMD="${OFFBOARD_CMD:-}"
+OFFBOARD_CMD="${OFFBOARD_CMD:-ros2 run my_px4_offboard offboard_takeoff_hover}"
 
 # QGC
 QGC_APPIMAGE="${QGC_APPIMAGE:-}"
@@ -240,7 +319,7 @@ if [[ "$ENABLE_AGENT" == "1" && -n "$AGENT_CMD" ]]; then
 fi
 
 GZ_SERVER_CMD_LINE=""
-if [[ "$GZ_MODE" == "standalone" ]]; then
+if [[ "$GZ_MODE" == "standalone" && -n "$GZ_SERVER_CMD" ]]; then
   GZ_SERVER_CMD_LINE="$(make_wrapped_cmd \
     "gz" \
     "$GZ_SERVER_CMD" \
@@ -253,9 +332,9 @@ ROS_ENV_CMD="source '/opt/ros/${ROS_DISTRO}/setup.bash'"
 if [[ -n "$ROS_SETUP_EXTRA" ]]; then
   ROS_ENV_CMD+=" && ${ROS_SETUP_EXTRA}"
 fi
-if [[ -n "$ROS_WS" && -f "$ROS_WS/install/setup.bash" ]]; then
+if [[ -f "$ROS_WS/install/setup.bash" ]]; then
   ROS_ENV_CMD+=" && source '$ROS_WS/install/setup.bash'"
-elif [[ -n "$ROS_WS" && -f "$ROS_WS/install/local_setup.bash" ]]; then
+elif [[ -f "$ROS_WS/install/local_setup.bash" ]]; then
   ROS_ENV_CMD+=" && source '$ROS_WS/install/local_setup.bash'"
 elif [[ "$ENABLE_ROS" == "1" ]]; then
   log "[WARN] ROS workspace setup not found under: $ROS_WS/install"
@@ -296,6 +375,10 @@ LOGS_CMD_LINE="bash -lc 'echo \"Logs: $THIS_LOG_DIR\"; ls -lah \"$THIS_LOG_DIR\"
 # -----------------------------
 
 preflight_check_gz_mode
+log "[INFO] Project root: $PROJECT_ROOT"
+log "[INFO] Resolved PX4_DIR: $PX4_DIR"
+log "[INFO] Resolved ROS_WS: $ROS_WS"
+log "[INFO] Logs dir: $LOG_DIR"
 log "[INFO] Gazebo startup mode: $GZ_MODE"
 log "[INFO] Gazebo owner: $GZ_OWNER_DESC"
 
