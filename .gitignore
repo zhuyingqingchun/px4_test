@@ -22,15 +22,13 @@ Thumbs.db
 Documents/
 Micro-XRCE-DDS-Agent/
 patch/
-px4_session_logs/
+
 
 # Third-party repos kept outside this repo scope
 px4_ros2_ws/src/px4_msgs/
 px4_ros2_ws/src/px4_ros_com/
 
-# Runtime local config
-px4sh/config.env
-!px4sh/config.env.example
+
 
 # Optional: ignore generated docs only, not all markdown
 px4sh/docs/

@@ -1,0 +1,2 @@
+110:[WARN] [1776419124.186285440] [offboard_trajectory]: APP_WARN: vehicle command ack command=400, result=1
+127:[WARN] [1776419129.127458036] [offboard_trajectory]: APP_WARN: vehicle command ack command=512, result=2 [suppressed 7 similar lines]

@@ -1,0 +1,3 @@
+     0.179 - debug: Settings location "/home/tz/.config/QGroundControl/QGroundControl.ini" Is writable?: true (qgc.qgcapplication:unknown:0)
+     0.228 - debug: Filter rules "*Log.debug=false\nqgc.*.debug=false\nqgc.videomanager.videoreceiver.gstreamer.api.debug=true\nqt.qml.connections=false" (qgc.utilities.qgcloggingcategory:unknown:0)
+    27.137 - critical: Error loading text-to-speech plug-in "speechd" (default:unknown:0)
