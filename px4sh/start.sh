@@ -430,7 +430,7 @@ fi
 tmux_run_in_window "px4" "$PX4_CMD_LINE"
 
 # 4) 等 PX4 ready
-wait_for_pattern "$THIS_LOG_DIR/px4.log" "$PX4_READY_REGEX" "$PX4_READY_TIMEOUT" "PX4 ready"
+wait_for_pattern "$THIS_LOG_DIR/px4.summary.log" "$PX4_READY_REGEX" "$PX4_READY_TIMEOUT" "PX4 ready"
 
 # 5) 启动 QGC
 if [[ -n "$QGC_CMD_LINE" ]]; then
