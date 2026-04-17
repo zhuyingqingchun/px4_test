@@ -105,6 +105,16 @@ FAIL_ON_EXISTING_GZ_IN_MANAGED="${FAIL_ON_EXISTING_GZ_IN_MANAGED:-1}"
 # 仅用于日志展示，方便排查当前到底是谁负责起 Gazebo
 GZ_OWNER_DESC=""
 
+# 长时间运行稳定性：
+# 1) 默认让 PX4 进程与当前终端 stdin 断开，避免 tmux/xterm 设备属性响应等控制串
+#    被误送进 pxh>，污染 PX4 shell 输入。
+# 2) 默认 attach 后焦点停在 logs 窗口，而不是 px4 窗口，进一步减少误输入风险。
+PX4_STDIN_MODE="${PX4_STDIN_MODE:-null}"         # inherit|null
+DEFAULT_ATTACH_WINDOW="${DEFAULT_ATTACH_WINDOW:-logs}"
+if [[ "$DEFAULT_ATTACH_WINDOW" == "px4" ]]; then
+  log "[WARN] DEFAULT_ATTACH_WINDOW=px4 may reintroduce accidental input into pxh>"
+fi
+
 # managed 模式下：
 #   HEADLESS=0 -> PX4 自己拉起带 GUI 的 Gazebo
 #   HEADLESS=1 -> PX4 自己拉起无 GUI 的 Gazebo
@@ -170,9 +180,14 @@ make_wrapped_cmd() {
   local logfile="$3"
   local alertfile="$4"
   local summaryfile="$5"
+  local stdin_mode="${6:-inherit}"
+  local shell_cmd="$raw 2>&1 | '$STREAM_FILTER' '$tag' '$logfile' '$alertfile' '$summaryfile' '$LOG_TERMINAL_MODE'"
 
-  printf 'bash -lc %q' \
-    "$raw 2>&1 | '$STREAM_FILTER' '$tag' '$logfile' '$alertfile' '$summaryfile' '$LOG_TERMINAL_MODE'"
+  if [[ "$stdin_mode" == "null" ]]; then
+    shell_cmd="$raw </dev/null 2>&1 | '$STREAM_FILTER' '$tag' '$logfile' '$alertfile' '$summaryfile' '$LOG_TERMINAL_MODE'"
+  fi
+
+  printf 'bash -lc %q' "$shell_cmd"
 }
 
 wait_for_pattern() {
@@ -307,7 +322,8 @@ PX4_CMD_LINE="$(make_wrapped_cmd \
   "$PX4_BASE_CMD" \
   "$THIS_LOG_DIR/px4.log" \
   "$THIS_LOG_DIR/px4.alerts.log" \
-  "$THIS_LOG_DIR/px4.summary.log")"
+  "$THIS_LOG_DIR/px4.summary.log" \
+  "$PX4_STDIN_MODE")"
 
 AGENT_CMD_LINE=""
 if [[ "$ENABLE_AGENT" == "1" && -n "$AGENT_CMD" ]]; then
@@ -329,24 +345,16 @@ if [[ "$GZ_MODE" == "standalone" && -n "$GZ_SERVER_CMD" ]]; then
     "$THIS_LOG_DIR/gz.summary.log")"
 fi
 
-ROS_SETUP_SCRIPT=""
-ROS_ENV_CMD="$(build_ros_env_cmd "$ROS_WS")"
-
-if [[ "$ENABLE_ROS" == "1" ]]; then
-  ROS_SETUP_SCRIPT="$(find_ros_setup_script "$ROS_WS" || true)"
-
-  if [[ "$OFFBOARD_CMD" == *"setup.bash"* || "$OFFBOARD_CMD" == *"local_setup.bash"* ]]; then
-    log "[ERROR] OFFBOARD_CMD should not source ROS setup scripts."
-    log "[ERROR] Put only the executable command in OFFBOARD_CMD, for example:"
-    log "[ERROR]   OFFBOARD_CMD=\"ros2 run my_px4_offboard offboard_takeoff_hover\""
-    exit 1
-  fi
-
-  if [[ -z "$ROS_SETUP_SCRIPT" ]]; then
-    log "[ERROR] ROS workspace setup not found under: $ROS_WS/install"
-    log "[ERROR] Build the workspace first: (cd '$ROS_WS' && colcon build)"
-    exit 1
-  fi
+ROS_ENV_CMD="source '/opt/ros/${ROS_DISTRO}/setup.bash'"
+if [[ -n "$ROS_SETUP_EXTRA" ]]; then
+  ROS_ENV_CMD+=" && ${ROS_SETUP_EXTRA}"
+fi
+if [[ -f "$ROS_WS/install/setup.bash" ]]; then
+  ROS_ENV_CMD+=" && source '$ROS_WS/install/setup.bash'"
+elif [[ -f "$ROS_WS/install/local_setup.bash" ]]; then
+  ROS_ENV_CMD+=" && source '$ROS_WS/install/local_setup.bash'"
+elif [[ "$ENABLE_ROS" == "1" ]]; then
+  log "[WARN] ROS workspace setup not found under: $ROS_WS/install"
 fi
 
 ROS_CMD_LINE=""
@@ -440,12 +448,18 @@ if [[ "$ENABLE_ROS" == "1" ]]; then
   tmux_run_in_window "ros" "$ROS_CMD_LINE"
 fi
 
-tmux select-window -t "$SESSION_NAME:px4"
+if tmux list-windows -t "$SESSION_NAME" -F '#W' | grep -qx "$DEFAULT_ATTACH_WINDOW"; then
+  tmux select-window -t "$SESSION_NAME:$DEFAULT_ATTACH_WINDOW"
+else
+  tmux select-window -t "$SESSION_NAME:px4"
+fi
 
 log "Session created: $SESSION_NAME"
 log "Logs: $THIS_LOG_DIR"
 log "Gazebo mode: $GZ_MODE"
 log "Gazebo owner: $GZ_OWNER_DESC"
 log "HEADLESS: $HEADLESS"
+log "PX4 stdin mode: $PX4_STDIN_MODE"
+log "Default attach window: $DEFAULT_ATTACH_WINDOW"
 
 exec tmux attach -t "$SESSION_NAME"
