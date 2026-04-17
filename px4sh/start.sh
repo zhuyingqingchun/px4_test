@@ -345,6 +345,7 @@ if [[ "$GZ_MODE" == "standalone" && -n "$GZ_SERVER_CMD" ]]; then
     "$THIS_LOG_DIR/gz.summary.log")"
 fi
 
+ROS_SETUP_SCRIPT=""
 ROS_ENV_CMD="source '/opt/ros/${ROS_DISTRO}/setup.bash'"
 if [[ -n "$ROS_SETUP_EXTRA" ]]; then
   ROS_ENV_CMD+=" && ${ROS_SETUP_EXTRA}"
