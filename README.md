@@ -30,17 +30,67 @@ This repository **does not include** the following dependencies (as they are mai
 ## Repository Structure
 
 ```
-PX4_pro/
-├── px4_ros2_ws/
+~/PX4_pro/
+├── .git/                          # Git repository
+├── .gitignore
+├── LICENSE
+├── README.md
+├── PROJECT_STRUCTURE.md           # This file
+│
+├── px4_ros2_ws/                  # ROS 2 workspace
 │   └── src/
-│       └── my_px4_offboard/      # Your custom offboard control package
-├── px4sh/                         # Session management scripts
+│       └── my_px4_offboard/      # Custom offboard control package
+│           ├── my_px4_offboard/
+│           │   ├── __init__.py
+│           │   ├── offboard_takeoff_hover.py   # Takeoff & hover control
+│           │   └── offboard_trajectory.py      # Trajectory following control
+│           └── package.xml
+│
+├── px4sh/                        # Session management scripts
 │   ├── start.sh                  # Start full simulation session
 │   ├── stop.sh                   # Stop all services
 │   ├── restart.sh                # Restart services
 │   ├── status.sh                 # Check running services
-│   └── config.env.example        # Configuration template
-└── README.md
+│   ├── status_check.sh           # Detailed status check
+│   ├── common.sh                 # Shared functions & path resolution
+│   ├── stream_log.sh             # Log streaming & filtering
+│   ├── read_logs.sh              # Read session logs
+│   ├── show_alert_context.sh     # Show alert context
+│   ├── clean_cache.sh            # Clean caches
+│   ├── px4ctl.sh                 # PX4 control utility
+│   ├── px4_live_position_plotter.py  # 3D trajectory visualization
+│   ├── config.env                 # Local configuration (not committed)
+│   ├── config.env.example        # Configuration template
+│   ├── docs/                     # Documentation
+│   ├── README.md                 # Scripts documentation
+│   └── 会话.md                   # Chinese documentation
+│
+├── px4_session_logs/             # Session logs (committed)
+│   └── YYYY-MM-DD_HH-MM-SS/     # Timestamped session directories
+│       ├── px4.log               # PX4 full log
+│       ├── px4.alerts.log        # PX4 alerts
+│       ├── px4.summary.log       # PX4 summary
+│       ├── agent.log             # DDS Agent log
+│       ├── agent.alerts.log      # Agent alerts
+│       ├── agent.summary.log     # Agent summary
+│       ├── qgc.log               # QGC log
+│       ├── qgc.alerts.log        # QGC alerts
+│       ├── qgc.summary.log       # QGC summary
+│       ├── ros_app.log           # ROS app log
+│       ├── ros_app.alerts.log    # ROS app alerts
+│       └── ros_app.summary.log   # ROS app summary
+│
+├── .px4_one_click/               # Runtime metadata
+├── patch/                        # Patches for reference
+├── Micro-XRCE-DDS-Agent/         # External DDS agent (cloned)
+└── Documents/                    # QGroundControl data
+    └── QGroundControl/
+        ├── CrashLogs/
+        ├── Logs/
+        ├── Missions/
+        ├── Parameters/
+        ├── Photo/
+        └── Telemetry/
 ```
 
 ## Quick Start
