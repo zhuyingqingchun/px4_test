@@ -1,0 +1,72 @@
+[INFO] [1776430456.609308754] [offboard_trajectory]: APP_OK: trajectory node started
+[INFO] [1776430457.612456072] [offboard_trajectory]: APP_OK: sent OFFBOARD mode command
+[INFO] [1776430457.613379975] [offboard_trajectory]: APP_OK: sent ARM command
+[INFO] [1776430458.581118618] [offboard_trajectory]: APP_OK: sent OFFBOARD mode command
+[INFO] [1776430458.584225527] [offboard_trajectory]: APP_OK: sent ARM command
+[INFO] [1776430459.586827301] [offboard_trajectory]: APP_OK: sent OFFBOARD mode command
+[INFO] [1776430459.588384206] [offboard_trajectory]: APP_OK: sent ARM command
+[INFO] [1776430460.626539447] [offboard_trajectory]: APP_OK: sent OFFBOARD mode command
+[INFO] [1776430460.627524445] [offboard_trajectory]: APP_OK: sent ARM command
+[INFO] [1776430461.723093003] [offboard_trajectory]: APP_OK: sent OFFBOARD mode command
+[INFO] [1776430461.723794801] [offboard_trajectory]: APP_OK: sent ARM command
+[INFO] [1776430462.726491098] [offboard_trajectory]: APP_OK: sent OFFBOARD mode command
+[INFO] [1776430462.727241496] [offboard_trajectory]: APP_OK: sent ARM command
+[INFO] [1776430463.727615928] [offboard_trajectory]: APP_OK: sent OFFBOARD mode command
+[INFO] [1776430463.728257527] [offboard_trajectory]: APP_OK: sent ARM command
+[INFO] [1776430464.788070138] [offboard_trajectory]: APP_OK: sent OFFBOARD mode command
+[INFO] [1776430464.789222642] [offboard_trajectory]: APP_OK: sent ARM command
+[INFO] [1776430465.828092171] [offboard_trajectory]: APP_OK: sent OFFBOARD mode command
+[INFO] [1776430465.828777773] [offboard_trajectory]: APP_OK: sent ARM command
+[INFO] [1776430466.831536106] [offboard_trajectory]: APP_OK: sent OFFBOARD mode command
+[INFO] [1776430466.834348215] [offboard_trajectory]: APP_OK: sent ARM command
+[INFO] [1776430467.833391966] [offboard_trajectory]: APP_OK: sent OFFBOARD mode command
+[INFO] [1776430467.835090171] [offboard_trajectory]: APP_OK: sent ARM command
+[INFO] [1776430468.863903265] [offboard_trajectory]: APP_OK: sent OFFBOARD mode command
+[INFO] [1776430468.864522164] [offboard_trajectory]: APP_OK: sent ARM command
+[INFO] [1776430469.893866841] [offboard_trajectory]: APP_OK: sent OFFBOARD mode command
+[INFO] [1776430469.895644537] [offboard_trajectory]: APP_OK: sent ARM command
+[INFO] [1776430470.926758035] [offboard_trajectory]: APP_OK: sent OFFBOARD mode command
+[INFO] [1776430470.927979232] [offboard_trajectory]: APP_OK: sent ARM command
+[INFO] [1776430471.928138030] [offboard_trajectory]: APP_OK: sent OFFBOARD mode command
+[INFO] [1776430471.931120223] [offboard_trajectory]: APP_OK: sent ARM command
+[INFO] [1776430472.941540998] [offboard_trajectory]: APP_OK: sent OFFBOARD mode command
+[INFO] [1776430472.943306505] [offboard_trajectory]: APP_OK: sent ARM command
+[INFO] [1776430473.981650991] [offboard_trajectory]: APP_OK: sent OFFBOARD mode command
+[INFO] [1776430473.982597895] [offboard_trajectory]: APP_OK: sent ARM command
+[INFO] [1776430475.008942657] [offboard_trajectory]: APP_OK: sent OFFBOARD mode command
+[INFO] [1776430475.010412263] [offboard_trajectory]: APP_OK: sent ARM command
+[INFO] [1776430476.038721480] [offboard_trajectory]: APP_OK: sent OFFBOARD mode command
+[INFO] [1776430476.042052473] [offboard_trajectory]: APP_OK: sent ARM command
+[INFO] [1776430477.070366580] [offboard_trajectory]: APP_OK: sent OFFBOARD mode command
+[INFO] [1776430478.253466579] [offboard_trajectory]: APP_OK: sent ARM command
+[INFO] [1776430478.472721103] [offboard_trajectory]: APP_OK: sent OFFBOARD mode command
+[INFO] [1776430478.478891690] [offboard_trajectory]: APP_OK: sent ARM command
+[INFO] [1776430479.711042370] [offboard_trajectory]: APP_OK: sent OFFBOARD mode command
+[INFO] [1776430479.711792368] [offboard_trajectory]: APP_OK: sent ARM command
+[INFO] [1776430480.526686709] [offboard_trajectory]: APP_OK: sent OFFBOARD mode command
+[INFO] [1776430480.529318903] [offboard_trajectory]: APP_OK: sent ARM command
+[INFO] [1776430481.576637058] [offboard_trajectory]: APP_OK: sent OFFBOARD mode command
+[INFO] [1776430481.577503162] [offboard_trajectory]: APP_OK: sent ARM command
+[INFO] [1776430482.662448700] [offboard_trajectory]: APP_OK: sent OFFBOARD mode command
+[INFO] [1776430482.663433706] [offboard_trajectory]: APP_OK: sent ARM command
+[INFO] [1776430483.677141011] [offboard_trajectory]: APP_OK: sent OFFBOARD mode command
+[INFO] [1776430483.695842577] [offboard_trajectory]: APP_OK: sent ARM command
+[INFO] [1776430484.734208634] [offboard_trajectory]: APP_OK: sent OFFBOARD mode command
+[INFO] [1776430484.735696731] [offboard_trajectory]: APP_OK: sent ARM command
+[INFO] [1776430485.777764807] [offboard_trajectory]: APP_OK: sent OFFBOARD mode command
+[INFO] [1776430485.779057004] [offboard_trajectory]: APP_OK: sent ARM command
+[WARN] [1776430486.465639928] [offboard_trajectory]: APP_WARN: vehicle command ack command=400, result=1
+[INFO] [1776430486.777795395] [offboard_trajectory]: APP_OK: sent ARM command
+[INFO] [1776430487.779182413] [offboard_trajectory]: APP_OK: sent ARM command
+[INFO] [1776430488.831627359] [offboard_trajectory]: APP_OK: sent ARM command
+[INFO] [1776430489.852584914] [offboard_trajectory]: APP_OK: sent ARM command
+[INFO] [1776430490.876484692] [offboard_trajectory]: APP_OK: sent ARM command
+[WARN] [1776430490.898001648] [offboard_trajectory]: APP_WARN: vehicle command ack command=400, result=1 [suppressed 5 similar lines]
+[INFO] [1776430491.877227850] [offboard_trajectory]: APP_OK: sent ARM command
+[INFO] [1776430492.948400385] [offboard_trajectory]: APP_OK: sent ARM command
+[INFO] [1776430493.216563877] [offboard_trajectory]: APP_OK: entering takeoff hold for 5.0 s
+[WARN] [1776430491.907274786] [offboard_trajectory]: APP_WARN: vehicle command ack command=400, result=1 [suppressed 1 similar lines]
+[WARN] [1776430501.353672773] [offboard_trajectory]: APP_WARN: vehicle command ack command=512, result=2
+[WARN] [1776430506.267970706] [offboard_trajectory]: APP_WARN: vehicle command ack command=512, result=2 [suppressed 3 similar lines]
+[WARN] [1776430520.354737501] [offboard_trajectory]: APP_WARN: vehicle command ack command=512, result=2 [suppressed 3 similar lines]
+[WARN] [1776430539.368589862] [offboard_trajectory]: APP_WARN: vehicle command ack command=512, result=2

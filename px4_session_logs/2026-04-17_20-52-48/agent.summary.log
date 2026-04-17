@@ -1,0 +1,3 @@
+[1776430390.205327] info     | Root.cpp           | create_client            | create                 | client_key: 0x00000001, session_id: 0x81
+[1776430390.206853] info     | SessionManager.hpp | establish_session        | session established    | client_key: 0x00000001, address: 127.0.0.1:49387
+[1776430390.617730] info     | ProxyClient.cpp    | create_participant       | participant created    | client_key: 0x00000001, participant_id: 0x001(1)
