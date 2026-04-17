@@ -76,6 +76,8 @@ class OffboardTrajectory(Node):
         self.last_offboard_request_sec = -1.0
         self.last_arm_request_sec = -1.0
         self.command_retry_sec = 1.0
+        self.last_nav_state: Optional[int] = None
+        self.last_arming_state: Optional[int] = None
 
         qos_profile = QoSProfile(
             reliability=ReliabilityPolicy.BEST_EFFORT,
@@ -141,7 +143,26 @@ class OffboardTrajectory(Node):
             )
 
     def vehicle_status_callback(self, msg: VehicleStatus) -> None:
+        prev_nav_state = self.last_nav_state
+        prev_arming_state = self.last_arming_state
+
         self.vehicle_status = msg
+        self.last_nav_state = int(msg.nav_state)
+        self.last_arming_state = int(msg.arming_state)
+
+        if prev_nav_state is not None and prev_nav_state != self.last_nav_state:
+            self.get_logger().info(
+                f"APP_OK: nav_state changed {prev_nav_state} -> {self.last_nav_state}"
+            )
+
+        if (
+            prev_arming_state is not None
+            and prev_arming_state != self.last_arming_state
+        ):
+            self.get_logger().info(
+                "APP_OK: arming_state changed "
+                f"{prev_arming_state} -> {self.last_arming_state}"
+            )
 
     def vehicle_command_ack_callback(self, msg: VehicleCommandAck) -> None:
         self.latest_command_ack = msg
@@ -220,6 +241,18 @@ class OffboardTrajectory(Node):
         )
         self.get_logger().info("APP_OK: sent ARM command")
 
+    def is_offboard_active(self) -> bool:
+        return (
+            self.vehicle_status is not None
+            and self.vehicle_status.nav_state == VehicleStatus.NAVIGATION_STATE_OFFBOARD
+        )
+
+    def is_armed(self) -> bool:
+        return (
+            self.vehicle_status is not None
+            and self.vehicle_status.arming_state == VehicleStatus.ARMING_STATE_ARMED
+        )
+
     def desired_setpoint(self) -> Tuple[float, float, float]:
         if self.trajectory_start_time is None:
             return self.home_x, self.home_y, self.target_z
@@ -241,9 +274,8 @@ class OffboardTrajectory(Node):
     def update_phase(self) -> None:
         if (
             self.phase == "prestream"
-            and self.vehicle_status is not None
-            and self.vehicle_status.nav_state == VehicleStatus.NAVIGATION_STATE_OFFBOARD
-            and self.vehicle_status.arming_state == VehicleStatus.ARMING_STATE_ARMED
+            and self.is_offboard_active()
+            and self.is_armed()
         ):
             self.phase = "takeoff_hold"
             self.trajectory_start_time = self.now_sec() + self.initial_hover_sec
@@ -260,6 +292,25 @@ class OffboardTrajectory(Node):
                     f"APP_OK: starting trajectory {self.trajectory_type}"
                 )
 
+    def maybe_request_mode_transitions(self) -> None:
+        if self.setpoint_counter < self.prestream_count:
+            return
+
+        now_sec = self.now_sec()
+
+        if not self.is_offboard_active():
+            if now_sec - self.last_offboard_request_sec >= self.command_retry_sec:
+                self.engage_offboard_mode()
+                self.offboard_mode_sent = True
+                self.last_offboard_request_sec = now_sec
+            return
+
+        if not self.is_armed():
+            if now_sec - self.last_arm_request_sec >= self.command_retry_sec:
+                self.arm()
+                self.arm_sent = True
+                self.last_arm_request_sec = now_sec
+
     def timer_callback(self) -> None:
         self.publish_offboard_control_mode()
 
@@ -269,26 +320,7 @@ class OffboardTrajectory(Node):
             sp_x, sp_y, sp_z = self.home_x, self.home_y, self.target_z
 
         self.publish_position_setpoint(sp_x, sp_y, sp_z, self.target_yaw)
-
-        nav_state = self.vehicle_status.nav_state if self.vehicle_status else None
-        arming_state = self.vehicle_status.arming_state if self.vehicle_status else None
-        now_sec = self.now_sec()
-
-        if self.setpoint_counter >= self.prestream_count:
-            if (
-                nav_state != VehicleStatus.NAVIGATION_STATE_OFFBOARD
-                and now_sec - self.last_offboard_request_sec >= self.command_retry_sec
-            ):
-                self.engage_offboard_mode()
-                self.offboard_mode_sent = True
-                self.last_offboard_request_sec = now_sec
-            if (
-                arming_state != VehicleStatus.ARMING_STATE_ARMED
-                and now_sec - self.last_arm_request_sec >= self.command_retry_sec
-            ):
-                self.arm()
-                self.arm_sent = True
-                self.last_arm_request_sec = now_sec
+        self.maybe_request_mode_transitions()
 
         if self.setpoint_counter < self.prestream_count + 1:
             self.setpoint_counter += 1

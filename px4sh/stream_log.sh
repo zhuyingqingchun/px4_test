@@ -85,6 +85,10 @@ function normalize_alert_key(text,    out) {
   return out
 }
 
+function is_prompt_only(text) {
+  return (text ~ /^pxh>[[:space:]]*$/)
+}
+
 function write_limited(kind, line,    bytes, marker) {
   bytes = length(line) + 1
 
@@ -183,6 +187,11 @@ function flush_suppressed_alerts(now_ts,    key, msg) {
 
 {
   clean_line = trim_ansi($0)
+
+  if (is_prompt_only(clean_line)) {
+    next
+  }
+
   write_limited("full", clean_line)
 
   is_alert = ($0 ~ alert_re)
