@@ -37,8 +37,8 @@ load_config() {
   PX4_DIR="$(resolve_path "${PX4_DIR:-}")"
   ROS_WS="$(resolve_path "${ROS_WS:-}")"
   QGC_APPIMAGE="$(resolve_path "${QGC_APPIMAGE:-}")"
-  LOG_DIR="$(resolve_path "${LOG_DIR:-$HOME/px4_session_logs}")"
-  RUNTIME_DIR="$(resolve_path "${RUNTIME_DIR:-$HOME/.px4_one_click}")"
+  LOG_DIR="$(resolve_path "${LOG_DIR:-px4_session_logs}")"
+  RUNTIME_DIR="$(resolve_path "${RUNTIME_DIR:-.px4_one_click}")"
 
   export SCRIPT_DIR PROJECT_ROOT PX4_DIR ROS_WS QGC_APPIMAGE LOG_DIR RUNTIME_DIR
 
@@ -117,8 +117,8 @@ ensure_prereqs() {
     log "[ERROR] PX4_DIR not found: $PX4_DIR"
     exit 1
   fi
-  if [[ "$ENABLE_ROS" == "1" && ! -f "/opt/ros/${ROS_DISTRO}/setup.bash" ]]; then
-    log "[ERROR] ROS not found: /opt/ros/${ROS_DISTRO}/setup.bash"
+  if [[ "${ENABLE_ROS:-1}" == "1" && ! -f "/opt/ros/${ROS_DISTRO:-jazzy}/setup.bash" ]]; then
+    log "[ERROR] ROS not found: /opt/ros/${ROS_DISTRO:-jazzy}/setup.bash"
     exit 1
   fi
   if [[ "${ENABLE_AGENT:-1}" == "1" ]]; then
@@ -130,8 +130,8 @@ Tried, in order: /usr/local/bin/MicroXRCEAgent, MicroXRCEAgent, /snap/bin/micro-
 
     log "[INFO] Using Agent command: $AGENT_CMD"
   fi
-  if [[ "$ENABLE_QGC" == "1" && ! -x "$QGC_APPIMAGE" ]]; then
-    log "[WARN] QGC AppImage missing or not executable: $QGC_APPIMAGE"
+  if [[ "${ENABLE_QGC:-1}" == "1" && ! -x "${QGC_APPIMAGE:-}" ]]; then
+    log "[WARN] QGC AppImage missing or not executable: ${QGC_APPIMAGE:-}"
   fi
 }
 
@@ -154,6 +154,35 @@ runtime_stamp() {
     source "$RUNTIME_DIR/session.meta"
     printf '%s' "${SESSION_STAMP:-}"
   fi
+}
+
+find_ros_setup_script() {
+  local ws="${1:-$ROS_WS}"
+
+  if [[ -f "$ws/install/local_setup.bash" ]]; then
+    printf '%s\n' "$ws/install/local_setup.bash"
+  elif [[ -f "$ws/install/setup.bash" ]]; then
+    printf '%s\n' "$ws/install/setup.bash"
+  else
+    return 1
+  fi
+}
+
+build_ros_env_cmd() {
+  local ws="${1:-$ROS_WS}"
+  local ros_setup=""
+  local cmd="source '/opt/ros/${ROS_DISTRO:-jazzy}/setup.bash'"
+
+  if [[ -n "${ROS_SETUP_EXTRA:-}" ]]; then
+    cmd+=" && ${ROS_SETUP_EXTRA}"
+  fi
+
+  ros_setup="$(find_ros_setup_script "$ws" || true)"
+  if [[ -n "$ros_setup" ]]; then
+    cmd+=" && source '$ros_setup'"
+  fi
+
+  printf '%s\n' "$cmd"
 }
 
 current_log_dir() {

@@ -20,6 +20,8 @@ pkill -f "gz gui" 2>/dev/null || true
 # Kill remaining PX4/Gazebo processes if any
 pkill -f "px4_sitl_default/bin/px4" 2>/dev/null || true
 pkill -f "gz sim.*-s" 2>/dev/null || true
+pkill -f "gz sim" 2>/dev/null || true
+pkill -f "ign gazebo" 2>/dev/null || true
 pkill -f "MicroXRCEAgent" 2>/dev/null || true
 pkill -f "micro-xrce-dds-agent" 2>/dev/null || true
 pkill -f "QGroundControl" 2>/dev/null || true

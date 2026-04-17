@@ -1,27 +1,22 @@
 #!/usr/bin/env bash
 set -Eeuo pipefail
 
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-CONFIG_FILE="${SCRIPT_DIR}/config.env"
-
-if [[ ! -f "$CONFIG_FILE" ]]; then
-  echo "[ERROR] Missing ${CONFIG_FILE}"
-  echo "Copy config.env.example to config.env first:"
-  echo "  cp ${SCRIPT_DIR}/config.env.example ${SCRIPT_DIR}/config.env"
-  exit 1
-fi
-
-# shellcheck disable=SC1090
-source "$CONFIG_FILE"
+source "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/common.sh"
+load_config
 
 echo "=== PX4 Session Health Check ==="
 
 PASS=0
 WARN=0
 FAIL=0
+HEADLESS="${HEADLESS:-0}"
+
+is_wsl() {
+  [[ -f "/proc/version" ]] && grep -qi microsoft /proc/version
+}
 
 check_tmux() {
-  if tmux has-session -t "$SESSION_NAME" 2>/dev/null; then
+  if session_exists; then
     echo "[PASS] tmux session exists: $SESSION_NAME"
     PASS=$((PASS + 1))
   else
@@ -41,7 +36,13 @@ check_px4() {
 }
 
 check_agent() {
-  if ps aux | grep -E "MicroXRCEAgent|micro-xrce-dds-agent" | grep -v grep >/dev/null 2>&1; then
+  if [[ "${ENABLE_AGENT:-1}" != "1" ]]; then
+    echo "[WARN] Agent disabled in config (ENABLE_AGENT=0)"
+    WARN=$((WARN + 1))
+    return
+  fi
+
+  if pgrep -fa "MicroXRCEAgent|micro-xrce-dds-agent" >/dev/null 2>&1; then
     echo "[PASS] Agent is running"
     PASS=$((PASS + 1))
   else
@@ -51,74 +52,81 @@ check_agent() {
 }
 
 check_gazebo_server() {
-  if pgrep -f "gz sim.*-s" >/dev/null 2>&1; then
-    echo "[PASS] Gazebo server exists"
+  if pgrep -fa '(^|/)(gz|gazebo)([[:space:]]|$)|ign[[:space:]]+gazebo|gz[[:space:]]+sim' >/dev/null 2>&1; then
+    echo "[PASS] Gazebo-related process exists"
     PASS=$((PASS + 1))
   else
-    echo "[FAIL] Gazebo server process not found"
+    echo "[FAIL] Gazebo process not found"
     FAIL=$((FAIL + 1))
   fi
 }
 
 check_gazebo_gui() {
-  if [[ "${ENABLE_GZ_GUI:-0}" == "1" ]]; then
-    if pgrep -f "gz sim -g\|gz gui" >/dev/null 2>&1; then
-      echo "[PASS] Gazebo GUI exists"
-      PASS=$((PASS + 1))
-    else
-      # Check if we're in WSL
-      if [[ -f "/proc/version" && $(grep -i microsoft /proc/version) ]]; then
-        echo "[WARN] Gazebo GUI not running (WSL environment - GUI may require X server)"
-        WARN=$((WARN + 1))
-      else
-        echo "[FAIL] Gazebo GUI process not found"
-        FAIL=$((FAIL + 1))
-      fi
-    fi
-  else
-    echo "[WARN] Gazebo GUI disabled in config (ENABLE_GZ_GUI=0)"
+  if [[ "$HEADLESS" == "1" ]]; then
+    echo "[WARN] Gazebo GUI not expected in headless mode (HEADLESS=1)"
     WARN=$((WARN + 1))
+    return
+  fi
+
+  if pgrep -f "gz sim -g|gz gui" >/dev/null 2>&1; then
+    echo "[PASS] Gazebo GUI exists"
+    PASS=$((PASS + 1))
+  else
+    if is_wsl; then
+      echo "[WARN] Gazebo GUI not running (WSL environment - GUI may require X server)"
+      WARN=$((WARN + 1))
+    else
+      echo "[FAIL] Gazebo GUI process not found"
+      FAIL=$((FAIL + 1))
+    fi
   fi
 }
 
 check_qgc() {
-  if [[ "$ENABLE_QGC" == "1" ]]; then
-    if pgrep -f "QGroundControl" >/dev/null 2>&1; then
-      echo "[PASS] QGroundControl exists"
-      PASS=$((PASS + 1))
-    else
-      # Check if we're in WSL
-      if [[ -f "/proc/version" && $(grep -i microsoft /proc/version) ]]; then
-        echo "[WARN] QGroundControl not running (WSL environment - GUI may require X server)"
-        WARN=$((WARN + 1))
-      else
-        echo "[FAIL] QGroundControl process not found"
-        FAIL=$((FAIL + 1))
-      fi
-    fi
-  else
+  if [[ "${ENABLE_QGC:-1}" != "1" ]]; then
     echo "[WARN] QGroundControl disabled in config (ENABLE_QGC=0)"
     WARN=$((WARN + 1))
+    return
+  fi
+
+  if pgrep -f "QGroundControl" >/dev/null 2>&1; then
+    echo "[PASS] QGroundControl exists"
+    PASS=$((PASS + 1))
+  else
+    if is_wsl; then
+      echo "[WARN] QGroundControl not running (WSL environment - GUI may require X server)"
+      WARN=$((WARN + 1))
+    else
+      echo "[FAIL] QGroundControl process not found"
+      FAIL=$((FAIL + 1))
+    fi
   fi
 }
 
 check_ros() {
-  if [[ "$ENABLE_ROS" == "1" ]]; then
-    if command -v ros2 >/dev/null 2>&1; then
-      if source "/opt/ros/${ROS_DISTRO}/setup.bash" 2>/dev/null && ros2 node list >/dev/null 2>&1; then
-        echo "[PASS] ROS 2 is running"
-        PASS=$((PASS + 1))
-      else
-        echo "[FAIL] ROS 2 not running or node list failed"
-        FAIL=$((FAIL + 1))
-      fi
-    else
-      echo "[FAIL] ROS 2 command not found"
-      FAIL=$((FAIL + 1))
-    fi
-  else
+  local ros_setup=""
+  local ros_env_cmd=""
+
+  if [[ "${ENABLE_ROS:-1}" != "1" ]]; then
     echo "[WARN] ROS auto-run disabled in config (ENABLE_ROS=0)"
     WARN=$((WARN + 1))
+    return
+  fi
+
+  ros_setup="$(find_ros_setup_script "$ROS_WS" || true)"
+  if [[ -z "$ros_setup" ]]; then
+    echo "[FAIL] ROS workspace setup not found under: $ROS_WS/install"
+    FAIL=$((FAIL + 1))
+    return
+  fi
+
+  ros_env_cmd="$(build_ros_env_cmd "$ROS_WS")"
+  if bash -lc "$ros_env_cmd && ros2 topic list >/dev/null 2>&1"; then
+    echo "[PASS] ROS 2 environment is usable"
+    PASS=$((PASS + 1))
+  else
+    echo "[FAIL] ROS 2 environment not usable or topic list failed"
+    FAIL=$((FAIL + 1))
   fi
 }
 

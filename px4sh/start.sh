@@ -114,10 +114,11 @@ ENABLE_AGENT="${ENABLE_AGENT:-1}"         # 例如 Micro XRCE-DDS Agent
 ENABLE_QGC="${ENABLE_QGC:-1}"
 ENABLE_ROS="${ENABLE_ROS:-1}"
 
-PX4_READY_TIMEOUT="${PX4_READY_TIMEOUT:-120}"
-QGC_SETTLE_SECONDS="${QGC_SETTLE_SECONDS:-6}"
-ROS_TOPIC_WAIT_SECONDS="${ROS_TOPIC_WAIT_SECONDS:-30}"
+PX4_READY_TIMEOUT="${PX4_READY_TIMEOUT:-${PX4_WAIT:-120}}"
+QGC_SETTLE_SECONDS="${QGC_SETTLE_SECONDS:-${QGC_WAIT:-6}}"
+ROS_TOPIC_WAIT_SECONDS="${ROS_TOPIC_WAIT_SECONDS:-${ROS_WAIT:-30}}"
 WAIT_FOR_FMU_TOPICS="${WAIT_FOR_FMU_TOPICS:-1}"
+AGENT_START_WAIT_SECONDS="${AGENT_START_WAIT_SECONDS:-${AGENT_WAIT:-0}}"
 
 # 你自己的工程变量（通常来自 common.sh）
 : "${PX4_DIR:?PX4_DIR is required}"
@@ -328,16 +329,24 @@ if [[ "$GZ_MODE" == "standalone" && -n "$GZ_SERVER_CMD" ]]; then
     "$THIS_LOG_DIR/gz.summary.log")"
 fi
 
-ROS_ENV_CMD="source '/opt/ros/${ROS_DISTRO}/setup.bash'"
-if [[ -n "$ROS_SETUP_EXTRA" ]]; then
-  ROS_ENV_CMD+=" && ${ROS_SETUP_EXTRA}"
-fi
-if [[ -f "$ROS_WS/install/setup.bash" ]]; then
-  ROS_ENV_CMD+=" && source '$ROS_WS/install/setup.bash'"
-elif [[ -f "$ROS_WS/install/local_setup.bash" ]]; then
-  ROS_ENV_CMD+=" && source '$ROS_WS/install/local_setup.bash'"
-elif [[ "$ENABLE_ROS" == "1" ]]; then
-  log "[WARN] ROS workspace setup not found under: $ROS_WS/install"
+ROS_SETUP_SCRIPT=""
+ROS_ENV_CMD="$(build_ros_env_cmd "$ROS_WS")"
+
+if [[ "$ENABLE_ROS" == "1" ]]; then
+  ROS_SETUP_SCRIPT="$(find_ros_setup_script "$ROS_WS" || true)"
+
+  if [[ "$OFFBOARD_CMD" == *"setup.bash"* || "$OFFBOARD_CMD" == *"local_setup.bash"* ]]; then
+    log "[ERROR] OFFBOARD_CMD should not source ROS setup scripts."
+    log "[ERROR] Put only the executable command in OFFBOARD_CMD, for example:"
+    log "[ERROR]   OFFBOARD_CMD=\"ros2 run my_px4_offboard offboard_takeoff_hover\""
+    exit 1
+  fi
+
+  if [[ -z "$ROS_SETUP_SCRIPT" ]]; then
+    log "[ERROR] ROS workspace setup not found under: $ROS_WS/install"
+    log "[ERROR] Build the workspace first: (cd '$ROS_WS' && colcon build)"
+    exit 1
+  fi
 fi
 
 ROS_CMD_LINE=""
@@ -379,6 +388,9 @@ log "[INFO] Project root: $PROJECT_ROOT"
 log "[INFO] Resolved PX4_DIR: $PX4_DIR"
 log "[INFO] Resolved ROS_WS: $ROS_WS"
 log "[INFO] Logs dir: $LOG_DIR"
+if [[ -n "$ROS_SETUP_SCRIPT" ]]; then
+  log "[INFO] Using ROS setup: $ROS_SETUP_SCRIPT"
+fi
 log "[INFO] Gazebo startup mode: $GZ_MODE"
 log "[INFO] Gazebo owner: $GZ_OWNER_DESC"
 
@@ -393,6 +405,9 @@ tmux_run_in_window "logs" "$LOGS_CMD_LINE"
 # 1) 先起 DDS Agent（如果你走 ROS2/uXRCE-DDS，这一步先起最稳）
 if [[ -n "$AGENT_CMD_LINE" ]]; then
   tmux_run_in_window "agent" "$AGENT_CMD_LINE"
+  if (( AGENT_START_WAIT_SECONDS > 0 )); then
+    sleep "$AGENT_START_WAIT_SECONDS"
+  fi
 fi
 
 # 2) standalone 模式才单独启动 Gazebo。
