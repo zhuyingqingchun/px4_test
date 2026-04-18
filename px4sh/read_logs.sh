@@ -14,26 +14,35 @@ if [[ ! -d "$LOG_PATH" ]]; then
   exit 1
 fi
 
+print_grouped_logs() {
+  local pattern="$1"
+  local suffix="$2"
+  local empty_msg="$3"
+
+  shopt -s nullglob
+  local logs=($pattern)
+  if [[ ${#logs[@]} -eq 0 ]]; then
+    echo "$empty_msg"
+    return 0
+  fi
+
+  for f in "${logs[@]}"; do
+    echo "===== $(basename "$f" "$suffix") ====="
+    if [[ -s "$f" ]]; then
+      tail -n "$TAIL_LINES" "$f"
+    else
+      echo "(empty)"
+    fi
+    echo
+  done
+}
+
 case "$MODE" in
   summary)
-    shopt -s nullglob
-    summary_logs=("$LOG_PATH"/*.summary.log)
-    if [[ ${#summary_logs[@]} -eq 0 ]]; then
-      echo "No summary logs found in $LOG_PATH"
-      exit 0
-    fi
-    for f in "${summary_logs[@]}"; do
-      echo "===== $(basename "$f" .summary.log) ====="
-      if [[ -s "$f" ]]; then
-        tail -n "$TAIL_LINES" "$f"
-      else
-        echo "(empty)"
-      fi
-      echo
-    done
+    print_grouped_logs "$LOG_PATH/*.summary.log" ".summary.log" "No summary logs found in $LOG_PATH"
     ;;
   alerts)
-    "$SCRIPT_DIR/show_alert_context.sh" "$LOG_PATH"
+    print_grouped_logs "$LOG_PATH/*.alerts.log" ".alerts.log" "No alert logs found in $LOG_PATH"
     ;;
   full)
     shopt -s nullglob
