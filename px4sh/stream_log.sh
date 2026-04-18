@@ -203,9 +203,7 @@ function flush_suppressed_alerts(now_ts,    key, msg) {
     next
   }
 
-  if (is_noisy_success(component, clean_line)) {
-    next
-  }
+  noisy_success = is_noisy_success(component, clean_line)
 
   write_limited("full", clean_line)
 
@@ -231,10 +229,10 @@ function flush_suppressed_alerts(now_ts,    key, msg) {
   } else {
     flush_suppressed_alerts(now_ts)
 
-    if (is_summary) {
+    if (is_summary && !noisy_success) {
       write_limited("summary", clean_line)
     }
-    if (mode == "concise" && is_success) {
+    if (mode == "concise" && is_success && !noisy_success) {
       printf("[%s][OK] %s\n", component, clean_line)
       fflush()
     }
