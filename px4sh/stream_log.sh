@@ -14,295 +14,41 @@ mode="$5"
 
 mkdir -p "$(dirname "$full_log")" "$(dirname "$alert_log")" "$(dirname "$summary_log")"
 
-# Long-run safety defaults:
-# - Keep recent PX4 full log context via a tail-preserved log by default.
-#   This avoids unbounded growth while keeping enough lines for alert context inspection.
-# - Keep alert/summary logs, but rate-limit similar alerts and cap file sizes.
-#
-# Optional overrides:
-#   PX4_DISABLE_FULL_LOG=1                # disable px4 full_log entirely
-#   PX4_FULL_LOG_TAIL_LINES=4000          # keep only the most recent N full-log lines for px4
-#   PX4_FULL_LOG_TRIM_EVERY=200           # trim the retained tail every N new lines
-#   STREAM_LOG_DISABLE_FULL_LOG=0
-#   STREAM_LOG_FULL_TAIL_LINES=0          # 0 disables tail trimming for non-px4 components
-#   STREAM_LOG_FULL_TRIM_EVERY=200
-#   STREAM_LOG_MAX_FULL_MB=100
-#   STREAM_LOG_MAX_ALERT_MB=50
-#   STREAM_LOG_MAX_SUMMARY_MB=20
-#   STREAM_LOG_ALERT_RATE_LIMIT_SEC=5
-#
-# Only exported environment variables are inherited by this script.
-if [[ "$component" == "px4" ]]; then
-  disable_full_log="${PX4_DISABLE_FULL_LOG:-0}"
-  full_tail_lines="${PX4_FULL_LOG_TAIL_LINES:-4000}"
-  full_trim_every="${PX4_FULL_LOG_TRIM_EVERY:-200}"
-else
-  disable_full_log="${STREAM_LOG_DISABLE_FULL_LOG:-0}"
-  full_tail_lines="${STREAM_LOG_FULL_TAIL_LINES:-0}"
-  full_trim_every="${STREAM_LOG_FULL_TRIM_EVERY:-200}"
-fi
-
-max_full_mb="${STREAM_LOG_MAX_FULL_MB:-100}"
-max_alert_mb="${STREAM_LOG_MAX_ALERT_MB:-50}"
-max_summary_mb="${STREAM_LOG_MAX_SUMMARY_MB:-20}"
-alert_rate_limit_sec="${STREAM_LOG_ALERT_RATE_LIMIT_SEC:-5}"
-
 : > "$full_log"
 : > "$alert_log"
 : > "$summary_log"
 
-awk \
-  -v full_log="$full_log" \
-  -v alert_log="$alert_log" \
-  -v summary_log="$summary_log" \
-  -v mode="$mode" \
-  -v component="$component" \
-  -v disable_full_log="$disable_full_log" \
-  -v full_tail_lines="$full_tail_lines" \
-  -v full_trim_every="$full_trim_every" \
-  -v max_full_bytes="$(( max_full_mb * 1024 * 1024 ))" \
-  -v max_alert_bytes="$(( max_alert_mb * 1024 * 1024 ))" \
-  -v max_summary_bytes="$(( max_summary_mb * 1024 * 1024 ))" \
-  -v alert_rate_limit_sec="$alert_rate_limit_sec" '
-BEGIN {
-  alert_re = "(WARN|ERROR|CRITICAL|FATAL|FAIL|Traceback|Exception|critical:|error:|warning:)"
-  success_re = "(Startup script returned successfully|Gazebo world is ready|Spawning Gazebo model|Ready for takeoff!|logger started|Opened full log file|session established|participant created|create_client|synchronized with time offset|node started|Sent command:|home set|init UDP agent IP|nav_state changed|arming_state changed|vehicle command accepted|entering takeoff hold|starting trajectory)"
-  summary_re = "(Startup script returned successfully|Gazebo world is ready|Spawning Gazebo model|Ready for takeoff!|logger started|Opened full log file|session established|participant created|create_client|synchronized with time offset|node started|Sent command:|home set|ARM|OFFBOARD|takeoff|land|connected|partner IP|nav_state changed|arming_state changed|vehicle command accepted|entering takeoff hold|starting trajectory)"
+alert_re='WARN|ERROR|CRITICAL|FATAL|FAIL|Traceback|Exception|critical:|error:|warning:'
+success_re='Ready for takeoff|Startup script returned successfully|home set|session established|participant created|trajectory node started|locked home XY|vehicle command accepted|entering takeoff hold|starting trajectory'
+summary_re='Ready for takeoff|Startup script returned successfully|home set|session established|participant created|trajectory node started|locked home XY|vehicle command accepted|entering takeoff hold|starting trajectory|WARN|ERROR|CRITICAL|FATAL|FAIL|Traceback|Exception|critical:|error:|warning:'
 
-  full_written = 0
-  alert_written = 0
-  summary_written = 0
-  full_truncated = 0
-  alert_truncated = 0
-  summary_truncated = 0
-  full_lines_since_trim = 0
-  full_trim_failed = 0
+while IFS= read -r line || [[ -n "$line" ]]; do
+  line="${line//$'\r'/}"
 
-  full_tail_lines += 0
-  full_trim_every += 0
+  if [[ "$line" =~ ^[[:space:]]*pxh\>([[:space:]]*pxh\>)*[[:space:]]*$ ]]; then
+    continue
+  fi
 
-  if (full_tail_lines < 0) {
-    full_tail_lines = 0
-  }
-  if (full_trim_every < 1) {
-    full_trim_every = 1
-  }
-}
+  printf '%s\n' "$line" >> "$full_log"
 
-function trim_ansi(text,    out) {
-  out = text
-  gsub(/\033\[[0-9;]*[A-Za-z]/, "", out)
-  gsub(/\r/, "", out)
-  return out
-}
+  if [[ "$line" =~ $alert_re ]]; then
+    printf '%s\n' "$line" >> "$alert_log"
+  fi
 
-function is_noisy_success(component, text) {
-  if (component == "ros") {
-    if (text ~ /APP_OK: sent OFFBOARD mode command/) return 1
-    if (text ~ /APP_OK: sent ARM command/) return 1
-  }
-  return 0
-}
+  if [[ "$line" =~ $summary_re ]]; then
+    printf '%s\n' "$line" >> "$summary_log"
+  fi
 
-function double_quote(text,    out) {
-  out = text
-  gsub(/["\\]/, "\\\\&", out)
-  return "\"" out "\""
-}
-
-function full_log_line(line_no, clean_line) {
-  if (full_tail_lines > 0) {
-    return sprintf("%d:%s", line_no, clean_line)
-  }
-  return clean_line
-}
-
-function trim_full_log_tail(    cmd, tmp, rc) {
-  if (disable_full_log == "1") {
-    return
-  }
-  if (full_tail_lines <= 0) {
-    return
-  }
-
-  close(full_log)
-
-  tmp = full_log ".tmp"
-  cmd = "if tail -n " full_tail_lines " " double_quote(full_log) " > " double_quote(tmp) "; then if mv " double_quote(tmp) " " double_quote(full_log) "; then exit 0; else rm -f " double_quote(tmp) "; exit 1; fi; else rm -f " double_quote(tmp) "; exit 1; fi"
-  rc = system(cmd)
-  if (rc != 0 && !full_trim_failed) {
-    write_limited("summary", "[stream_log][WARN] failed to trim full log tail")
-    full_trim_failed = 1
-  }
-}
-
-function normalize_alert_key(text,    out) {
-  out = text
-  gsub(/-?[0-9]+\.[0-9]+/, "<num>", out)
-  gsub(/-?[0-9]+/, "<num>", out)
-  gsub(/[[:space:]]+/, " ", out)
-  return out
-}
-
-function is_prompt_only(text) {
-  if (text ~ /^[[:space:]]*pxh>([[:space:]]*pxh>)*[[:space:]]*$/) return 1
-  if (text ~ /^[[:space:]]*pxh>[[:space:]]*$/) return 1
-  return 0
-}
-
-function write_limited(kind, line,    bytes, marker) {
-  bytes = length(line) + 1
-
-  if (kind == "full") {
-    if (disable_full_log == "1") {
-      return
-    }
-    if (full_tail_lines > 0) {
-      print line >> full_log
-      fflush(full_log)
-      full_lines_since_trim++
-      if (full_lines_since_trim >= full_trim_every) {
-        trim_full_log_tail()
-        full_lines_since_trim = 0
-      }
-      return
-    }
-    if (full_truncated) {
-      return
-    }
-    if (full_written + bytes > max_full_bytes) {
-      marker = sprintf("[stream_log] full log truncated at %d bytes", max_full_bytes)
-      print marker >> full_log
-      fflush(full_log)
-      full_truncated = 1
-      full_written += length(marker) + 1
-      return
-    }
-    print line >> full_log
-    fflush(full_log)
-    full_written += bytes
-    return
-  }
-
-  if (kind == "alert") {
-    if (alert_truncated) {
-      return
-    }
-    if (alert_written + bytes > max_alert_bytes) {
-      marker = sprintf("[stream_log] alert log truncated at %d bytes", max_alert_bytes)
-      print marker >> alert_log
-      fflush(alert_log)
-      alert_truncated = 1
-      alert_written += length(marker) + 1
-      return
-    }
-    print line >> alert_log
-    fflush(alert_log)
-    alert_written += bytes
-    return
-  }
-
-  if (kind == "summary") {
-    if (summary_truncated) {
-      return
-    }
-    if (summary_written + bytes > max_summary_bytes) {
-      marker = sprintf("[stream_log] summary log truncated at %d bytes", max_summary_bytes)
-      print marker >> summary_log
-      fflush(summary_log)
-      summary_truncated = 1
-      summary_written += length(marker) + 1
-      return
-    }
-    print line >> summary_log
-    fflush(summary_log)
-    summary_written += bytes
-    return
-  }
-}
-
-function emit_alert(line_no, clean_line, now_ts,    key, msg, suppressed) {
-  key = normalize_alert_key(clean_line)
-  suppressed = suppressed_alert_count[key]
-
-  if (suppressed > 0) {
-    msg = sprintf("%s [suppressed %d similar lines]", clean_line, suppressed)
-  } else {
-    msg = clean_line
-  }
-
-  write_limited("alert", sprintf("%d:%s", line_no, msg))
-  write_limited("summary", msg)
-  printf("[%s][ALERT] %s\n", component, msg)
-  fflush()
-
-  suppressed_alert_count[key] = 0
-  last_alert_emit[key] = now_ts
-}
-
-function flush_suppressed_alerts(now_ts,    key, msg) {
-  for (key in suppressed_alert_count) {
-    if (suppressed_alert_count[key] > 0 && (!(key in last_alert_emit) || now_ts - last_alert_emit[key] >= alert_rate_limit_sec)) {
-      msg = sprintf("%s [suppressed %d similar lines]", last_alert_original[key], suppressed_alert_count[key])
-      write_limited("alert", sprintf("%d:%s", NR, msg))
-      write_limited("summary", msg)
-      if (mode == "concise") {
-        printf("[%s][ALERT] %s\n", component, msg)
-        fflush()
-      }
-      suppressed_alert_count[key] = 0
-      last_alert_emit[key] = now_ts
-    }
-  }
-}
-
-{
-  clean_line = trim_ansi($0)
-
-  if (is_prompt_only(clean_line)) {
-    next
-  }
-
-  noisy_success = is_noisy_success(component, clean_line)
-
-  write_limited("full", full_log_line(NR, clean_line))
-
-  is_alert = ($0 ~ alert_re)
-  is_success = ($0 ~ success_re)
-  is_summary = ($0 ~ summary_re)
-
-  now_ts = systime()
-
-  if (is_alert) {
-    key = normalize_alert_key(clean_line)
-    last_alert_original[key] = clean_line
-
-    if (!(key in last_alert_emit) || now_ts - last_alert_emit[key] >= alert_rate_limit_sec) {
-      emit_alert(NR, clean_line, now_ts)
-    } else {
-      suppressed_alert_count[key]++
-    }
-  } else if (mode == "full") {
-    flush_suppressed_alerts(now_ts)
-    printf("[%s] %s\n", component, clean_line)
-    fflush()
-  } else {
-    flush_suppressed_alerts(now_ts)
-
-    if (is_summary && !noisy_success) {
-      write_limited("summary", clean_line)
-    }
-    if (mode == "concise" && is_success && !noisy_success) {
-      printf("[%s][OK] %s\n", component, clean_line)
-      fflush()
-    }
-  }
-}
-END {
-  flush_suppressed_alerts(systime())
-  trim_full_log_tail()
-  close(full_log)
-  close(alert_log)
-  close(summary_log)
-}
-' 
+  case "$mode" in
+    full)
+      printf '[%s] %s\n' "$component" "$line"
+      ;;
+    concise|*)
+      if [[ "$line" =~ $alert_re ]]; then
+        printf '[%s][ALERT] %s\n' "$component" "$line"
+      elif [[ "$line" =~ $success_re ]]; then
+        printf '[%s][OK] %s\n' "$component" "$line"
+      fi
+      ;;
+  esac
+done

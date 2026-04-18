@@ -78,6 +78,10 @@ class OffboardTrajectory(Node):
         self.command_retry_sec = 1.0
         self.last_nav_state: Optional[int] = None
         self.last_arming_state: Optional[int] = None
+        self.tracked_command_ids = {
+            VehicleCommand.VEHICLE_CMD_DO_SET_MODE,
+            VehicleCommand.VEHICLE_CMD_COMPONENT_ARM_DISARM,
+        }
 
         qos_profile = QoSProfile(
             reliability=ReliabilityPolicy.BEST_EFFORT,
@@ -166,6 +170,9 @@ class OffboardTrajectory(Node):
 
     def vehicle_command_ack_callback(self, msg: VehicleCommandAck) -> None:
         self.latest_command_ack = msg
+        if int(msg.command) not in self.tracked_command_ids:
+            return
+
         if msg.result == VehicleCommandAck.VEHICLE_CMD_RESULT_ACCEPTED:
             self.get_logger().info(
                 f"APP_OK: vehicle command accepted command={msg.command}"
