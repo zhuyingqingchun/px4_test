@@ -128,7 +128,7 @@ function trim_full_log_tail(    cmd, tmp, rc) {
   close(full_log)
 
   tmp = full_log ".tmp"
-  cmd = "tail -n " full_tail_lines " " double_quote(full_log) " > " double_quote(tmp) " && mv " double_quote(tmp) " " double_quote(full_log) " || rm -f " double_quote(tmp)
+  cmd = "if tail -n " full_tail_lines " " double_quote(full_log) " > " double_quote(tmp) "; then if mv " double_quote(tmp) " " double_quote(full_log) "; then exit 0; else rm -f " double_quote(tmp) "; exit 1; fi; else rm -f " double_quote(tmp) "; exit 1; fi"
   rc = system(cmd)
   if (rc != 0 && !full_trim_failed) {
     write_limited("summary", "[stream_log][WARN] failed to trim full log tail")
