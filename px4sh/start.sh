@@ -13,6 +13,7 @@ ENABLE_AGENT="${ENABLE_AGENT:-1}"
 ENABLE_QGC="${ENABLE_QGC:-0}"
 ENABLE_ROS="${ENABLE_ROS:-1}"
 PX4_READY_TIMEOUT="${PX4_READY_TIMEOUT:-120}"
+QGC_LAUNCH_MODE="${QGC_LAUNCH_MODE:-desktop}"
 AGENT_START_WAIT_SECONDS="${AGENT_START_WAIT_SECONDS:-2}"
 QGC_SETTLE_SECONDS="${QGC_SETTLE_SECONDS:-4}"
 DEFAULT_ATTACH_WINDOW="${DEFAULT_ATTACH_WINDOW:-px4}"
@@ -114,6 +115,30 @@ tmux_run_in_window() {
   tmux send-keys -t "$SESSION_NAME:$name" "$cmd" C-m
 }
 
+launch_qgc_desktop() {
+  local qgc_log="$THIS_LOG_DIR/qgc.log"
+  local qgc_alerts="$THIS_LOG_DIR/qgc.alerts.log"
+  local qgc_summary="$THIS_LOG_DIR/qgc.summary.log"
+
+  : > "$qgc_log"
+  : > "$qgc_alerts"
+  : > "$qgc_summary"
+
+  local raw="${QGC_ENV:-} '$QGC_APPIMAGE'"
+  nohup env -u TMUX bash -lc "$raw" >>"$qgc_log" 2>&1 </dev/null &
+  echo $! > "$RUNTIME_DIR/qgc.pid"
+}
+
+refresh_qgc_log_views() {
+  local qgc_log="$THIS_LOG_DIR/qgc.log"
+  local qgc_alerts="$THIS_LOG_DIR/qgc.alerts.log"
+  local qgc_summary="$THIS_LOG_DIR/qgc.summary.log"
+  local qgc_re='libEGL warning|MESA|ZINK|critical:|error:|warning:|ERROR|WARN|FAIL|Exception'
+  [[ -f "$qgc_log" ]] || return 0
+  grep -E "$qgc_re" "$qgc_log" > "$qgc_alerts" || true
+  cp "$qgc_alerts" "$qgc_summary" 2>/dev/null || true
+}
+
 preflight_check_gz_mode
 
 STAMP="$(date +%F_%H-%M-%S)"
@@ -195,15 +220,20 @@ if [[ "$ENABLE_ROS" == "1" && -n "${OFFBOARD_CMD:-}" ]]; then
 fi
 
 QGC_CMD_LINE=""
+QGC_ENABLED=0
 if [[ "$ENABLE_QGC" == "1" ]]; then
   if [[ -n "${QGC_APPIMAGE:-}" && -x "$QGC_APPIMAGE" ]]; then
-    QGC_CMD_LINE="$(make_wrapped_cmd \
-      "qgc" \
-      "${QGC_ENV:-} '$QGC_APPIMAGE'" \
-      "$THIS_LOG_DIR/qgc.log" \
-      "$THIS_LOG_DIR/qgc.alerts.log" \
-      "$THIS_LOG_DIR/qgc.summary.log")"
+    QGC_ENABLED=1
+    if [[ "$QGC_LAUNCH_MODE" == "tmux" ]]; then
+      QGC_CMD_LINE="$(make_wrapped_cmd \
+        "qgc" \
+        "${QGC_ENV:-} '$QGC_APPIMAGE'" \
+        "$THIS_LOG_DIR/qgc.log" \
+        "$THIS_LOG_DIR/qgc.alerts.log" \
+        "$THIS_LOG_DIR/qgc.summary.log")"
+    fi
   else
+    QGC_ENABLED=0
     log "[WARN] ENABLE_QGC=1 but QGC_APPIMAGE is missing or not executable"
   fi
 fi
@@ -234,9 +264,14 @@ fi
 tmux_run_in_window "px4" "$PX4_CMD_LINE"
 wait_for_pattern "$THIS_LOG_DIR/px4.summary.log" "$PX4_READY_REGEX" "$PX4_READY_TIMEOUT" "PX4 ready"
 
-if [[ -n "$QGC_CMD_LINE" ]]; then
-  tmux_run_in_window "qgc" "$QGC_CMD_LINE"
+if [[ "$QGC_ENABLED" == "1" ]]; then
+  if [[ "$QGC_LAUNCH_MODE" == "tmux" ]]; then
+    tmux_run_in_window "qgc" "$QGC_CMD_LINE"
+  else
+    launch_qgc_desktop
+  fi
   sleep "$QGC_SETTLE_SECONDS"
+  refresh_qgc_log_views
 fi
 
 if [[ -n "$ROS_CMD_LINE" ]]; then

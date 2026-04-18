@@ -15,6 +15,11 @@ else
   log "No tmux session running: $SESSION_NAME (will still clean remaining processes)"
 fi
 
+if [[ -f "$RUNTIME_DIR/qgc.pid" ]]; then
+  kill "$(cat "$RUNTIME_DIR/qgc.pid")" 2>/dev/null || true
+  rm -f "$RUNTIME_DIR/qgc.pid" 2>/dev/null || true
+fi
+
 cleanup_pattern "Gazebo GUI" "gz sim -g|gz gui|gzclient"
 cleanup_pattern "Gazebo server" "gz sim|gzserver|ign gazebo"
 cleanup_pattern "PX4" "px4_sitl_default/bin/px4|[ /]px4([[:space:]]|$)"

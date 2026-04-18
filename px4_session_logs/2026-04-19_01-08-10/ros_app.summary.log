@@ -1,1 +1,11 @@
 [INFO] [1776532119.566111810] [offboard_trajectory]: APP_OK: trajectory node started
+[INFO] [1776532305.212786545] [offboard_trajectory]: APP_OK: locked home XY x=0.02, y=-0.01
+[INFO] [1776532305.231627678] [offboard_trajectory]: APP_OK: vehicle command accepted command=400
+[INFO] [1776532305.233197781] [offboard_trajectory]: APP_OK: entering takeoff hold for 5.0 s
+[WARN] [1776532306.102498781] [offboard_trajectory]: APP_WARN: vehicle command ack command=512, result=2
+[WARN] [1776532307.672872080] [offboard_trajectory]: APP_WARN: vehicle command ack command=512, result=2
+[WARN] [1776532309.446126158] [offboard_trajectory]: APP_WARN: vehicle command ack command=512, result=2
+[INFO] [1776532310.282657097] [offboard_trajectory]: APP_OK: starting trajectory circle
+[WARN] [1776532311.728819487] [offboard_trajectory]: APP_WARN: vehicle command ack command=512, result=2
+[WARN] [1776532313.346070079] [offboard_trajectory]: APP_WARN: vehicle command ack command=512, result=2
+[WARN] [1776532314.896516266] [offboard_trajectory]: APP_WARN: vehicle command ack command=512, result=2
