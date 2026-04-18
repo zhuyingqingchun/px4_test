@@ -56,7 +56,7 @@ awk \
 BEGIN {
   alert_re = "(WARN|ERROR|CRITICAL|FATAL|FAIL|Traceback|Exception|critical:|error:|warning:)"
   success_re = "(Startup script returned successfully|Gazebo world is ready|Spawning Gazebo model|Ready for takeoff!|logger started|Opened full log file|session established|participant created|create_client|synchronized with time offset|node started|Sent command:|home set|init UDP agent IP)"
-  summary_re = "(Startup script returned successfully|Gazebo world is ready|Spawning Gazebo model|Ready for takeoff!|logger started|Opened full log file|session established|participant created|create_client|synchronized with time offset|node started|Sent command:|ARM|OFFBOARD|takeoff|land|connected|partner IP)"
+  summary_re = "(Startup script returned successfully|Gazebo world is ready|Spawning Gazebo model|Ready for takeoff!|logger started|Opened full log file|session established|participant created|create_client|synchronized with time offset|node started|Sent command:|home set|ARM|OFFBOARD|takeoff|land|connected|partner IP|nav_state changed|arming_state changed|vehicle command accepted|entering takeoff hold|starting trajectory)"
 
   full_written = 0
   alert_written = 0
@@ -74,7 +74,16 @@ BEGIN {
 function trim_ansi(text,    out) {
   out = text
   gsub(/\033\[[0-9;]*[A-Za-z]/, "", out)
+  gsub(/\r/, "", out)
   return out
+}
+
+function is_noisy_success(component, text) {
+  if (component == "ros") {
+    if (text ~ /APP_OK: sent OFFBOARD mode command/) return 1
+    if (text ~ /APP_OK: sent ARM command/) return 1
+  }
+  return 0
 }
 
 function normalize_alert_key(text,    out) {
@@ -86,7 +95,9 @@ function normalize_alert_key(text,    out) {
 }
 
 function is_prompt_only(text) {
-  return (text ~ /^pxh>[[:space:]]*$/)
+  if (text ~ /^[[:space:]]*pxh>([[:space:]]*pxh>)*[[:space:]]*$/) return 1
+  if (text ~ /^[[:space:]]*pxh>[[:space:]]*$/) return 1
+  return 0
 }
 
 function write_limited(kind, line,    bytes, marker) {
@@ -189,6 +200,10 @@ function flush_suppressed_alerts(now_ts,    key, msg) {
   clean_line = trim_ansi($0)
 
   if (is_prompt_only(clean_line)) {
+    next
+  }
+
+  if (is_noisy_success(component, clean_line)) {
     next
   }
 

@@ -32,3 +32,7 @@ px4_ros2_ws/src/px4_ros_com/
 
 # Optional: ignore generated docs only, not all markdown
 px4sh/docs/
+
+# Runtime logs / metadata
+px4_session_logs/
+.px4_one_click/

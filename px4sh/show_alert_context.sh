@@ -33,7 +33,8 @@ for alert_log in "${alert_logs[@]}"; do
     continue
   fi
 
-  if [[ ! -f "$full_log" ]]; then
+  if [[ ! -f "$full_log" || ! -s "$full_log" ]]; then
+    echo "(full log missing or empty; showing alert lines only)"
     cat "$alert_log"
     echo
     continue

@@ -24,7 +24,7 @@ case "$MODE" in
     for f in "${summary_logs[@]}"; do
       echo "===== $(basename "$f" .summary.log) ====="
       if [[ -s "$f" ]]; then
-        cat "$f"
+        tail -n 200 "$f"
       else
         echo "(empty)"
       fi
