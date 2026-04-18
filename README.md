@@ -103,14 +103,14 @@ cp px4sh/config.env.example px4sh/config.env
 ```
 
 Edit `px4sh/config.env` to match your local paths:
-- `PX4_DIR`: Path to your PX4-Autopilot repository
-- `ROS_WS`: Path to your ROS 2 workspace
+- `PX4_DIR`: Path to your PX4-Autopilot repository (e.g., `~/PX4-Autopilot`)
+- `ROS_WS`: Path to your ROS 2 workspace (e.g., `~/PX4_pro/px4_ros2_ws`)
 - Adjust any other paths as needed
 
 ### 2. Build ROS 2 Package
 
 ```bash
-cd ~/px4_ros2_ws
+cd px4_ros2_ws
 colcon build
 source install/local_setup.bash
 ```
