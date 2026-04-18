@@ -1,4 +1,0 @@
-     0.209 - debug: Settings location "/home/tz/.config/QGroundControl/QGroundControl.ini" Is writable?: true (qgc.qgcapplication:unknown:0)
-     0.243 - debug: Filter rules "*Log.debug=false\nqgc.*.debug=false\nqgc.videomanager.videoreceiver.gstreamer.api.debug=true\nqt.qml.connections=false" (qgc.utilities.qgcloggingcategory:unknown:0)
-    23.721 - critical: Error loading text-to-speech plug-in "speechd" (default:unknown:0)
-    25.674 - info: qrc:/qml/QGroundControl/Controls/SimpleItemMapVisual.qml: Object or context destroyed during incubation (default:unknown:-1)

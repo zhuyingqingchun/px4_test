@@ -1,5 +1,0 @@
-10:[WARN] [1776522228.164597833] [offboard_trajectory]: APP_WARN: vehicle command ack command=400, result=1
-32:[WARN] [1776522230.507947108] [offboard_trajectory]: APP_WARN: vehicle command ack command=400, result=1 [suppressed 4 similar lines]
-38:[WARN] [1776522238.129134897] [offboard_trajectory]: APP_WARN: vehicle command ack command=512, result=2 [suppressed 4 similar lines]
-42:[WARN] [1776522254.082053892] [offboard_trajectory]: APP_WARN: vehicle command ack command=512, result=2 [suppressed 3 similar lines]
-43:[WARN] [1776522273.176953433] [offboard_trajectory]: APP_WARN: vehicle command ack command=512, result=2

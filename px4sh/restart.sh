@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 set -Eeuo pipefail
+
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 "$SCRIPT_DIR/stop.sh" || true
 
@@ -16,13 +17,11 @@ wait_process_gone() {
   return 1
 }
 
-# Give Gazebo / PX4 a chance to exit fully before starting again.
 wait_process_gone "gz sim|gzserver|ign gazebo" 10 || true
 wait_process_gone "px4_sitl_default/bin/px4|[ /]px4([[:space:]]|$)" 10 || true
 wait_process_gone "MicroXRCEAgent|micro-xrce-dds-agent" 10 || true
 wait_process_gone "QGroundControl" 5 || true
+wait_process_gone "my_px4_offboard|offboard_takeoff_hover|offboard_trajectory" 5 || true
 
-# Small final settle delay for child-process teardown.
 sleep 1
-
 exec "$SCRIPT_DIR/start.sh"
