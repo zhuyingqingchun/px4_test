@@ -1,0 +1,306 @@
+[INFO] [1776532119.566111810] [offboard_trajectory]: APP_OK: trajectory node started
+[INFO] [1776532119.567217710] [offboard_trajectory]: APP_OK: trajectory config type=circle, radius=2.00 m, period=20.00 s, target_z=-5.00
+[INFO] [1776532120.574530348] [offboard_trajectory]: APP_OK: sent OFFBOARD mode command
+[INFO] [1776532120.576358748] [offboard_trajectory]: APP_OK: sent ARM command
+[INFO] [1776532121.574889884] [offboard_trajectory]: APP_OK: sent OFFBOARD mode command
+[INFO] [1776532121.575530584] [offboard_trajectory]: APP_OK: sent ARM command
+[INFO] [1776532122.624179203] [offboard_trajectory]: APP_OK: sent OFFBOARD mode command
+[INFO] [1776532122.624743303] [offboard_trajectory]: APP_OK: sent ARM command
+[INFO] [1776532123.624368231] [offboard_trajectory]: APP_OK: sent OFFBOARD mode command
+[INFO] [1776532123.625059930] [offboard_trajectory]: APP_OK: sent ARM command
+[INFO] [1776532124.674338540] [offboard_trajectory]: APP_OK: sent OFFBOARD mode command
+[INFO] [1776532124.675160340] [offboard_trajectory]: APP_OK: sent ARM command
+[INFO] [1776532125.711654549] [offboard_trajectory]: APP_OK: sent OFFBOARD mode command
+[INFO] [1776532125.714451448] [offboard_trajectory]: APP_OK: sent ARM command
+[INFO] [1776532126.726658168] [offboard_trajectory]: APP_OK: sent OFFBOARD mode command
+[INFO] [1776532126.727478568] [offboard_trajectory]: APP_OK: sent ARM command
+[INFO] [1776532127.777158886] [offboard_trajectory]: APP_OK: sent OFFBOARD mode command
+[INFO] [1776532127.782147785] [offboard_trajectory]: APP_OK: sent ARM command
+[INFO] [1776532128.825425301] [offboard_trajectory]: APP_OK: sent OFFBOARD mode command
+[INFO] [1776532128.826778900] [offboard_trajectory]: APP_OK: sent ARM command
+[INFO] [1776532129.824323124] [offboard_trajectory]: APP_OK: sent OFFBOARD mode command
+[INFO] [1776532129.824903924] [offboard_trajectory]: APP_OK: sent ARM command
+[INFO] [1776532130.825056243] [offboard_trajectory]: APP_OK: sent OFFBOARD mode command
+[INFO] [1776532130.825911443] [offboard_trajectory]: APP_OK: sent ARM command
+[INFO] [1776532131.836398055] [offboard_trajectory]: APP_OK: sent OFFBOARD mode command
+[INFO] [1776532131.838382055] [offboard_trajectory]: APP_OK: sent ARM command
+[INFO] [1776532132.874265355] [offboard_trajectory]: APP_OK: sent OFFBOARD mode command
+[INFO] [1776532132.874967555] [offboard_trajectory]: APP_OK: sent ARM command
+[INFO] [1776532133.904012253] [offboard_trajectory]: APP_OK: sent OFFBOARD mode command
+[INFO] [1776532133.904580353] [offboard_trajectory]: APP_OK: sent ARM command
+[INFO] [1776532134.926651747] [offboard_trajectory]: APP_OK: sent OFFBOARD mode command
+[INFO] [1776532134.927179047] [offboard_trajectory]: APP_OK: sent ARM command
+[INFO] [1776532135.974309327] [offboard_trajectory]: APP_OK: sent OFFBOARD mode command
+[INFO] [1776532135.974836427] [offboard_trajectory]: APP_OK: sent ARM command
+[INFO] [1776532136.981403216] [offboard_trajectory]: APP_OK: sent OFFBOARD mode command
+[INFO] [1776532136.982085216] [offboard_trajectory]: APP_OK: sent ARM command
+[INFO] [1776532138.026201988] [offboard_trajectory]: APP_OK: sent OFFBOARD mode command
+[INFO] [1776532138.026818788] [offboard_trajectory]: APP_OK: sent ARM command
+[INFO] [1776532139.074624555] [offboard_trajectory]: APP_OK: sent OFFBOARD mode command
+[INFO] [1776532139.075551855] [offboard_trajectory]: APP_OK: sent ARM command
+[INFO] [1776532140.074587433] [offboard_trajectory]: APP_OK: sent OFFBOARD mode command
+[INFO] [1776532140.075172433] [offboard_trajectory]: APP_OK: sent ARM command
+[INFO] [1776532141.128441390] [offboard_trajectory]: APP_OK: sent OFFBOARD mode command
+[INFO] [1776532141.129162989] [offboard_trajectory]: APP_OK: sent ARM command
+[INFO] [1776532142.175679244] [offboard_trajectory]: APP_OK: sent OFFBOARD mode command
+[INFO] [1776532142.176312744] [offboard_trajectory]: APP_OK: sent ARM command
+[INFO] [1776532143.224396823] [offboard_trajectory]: APP_OK: sent OFFBOARD mode command
+[INFO] [1776532143.225351323] [offboard_trajectory]: APP_OK: sent ARM command
+[INFO] [1776532144.226360748] [offboard_trajectory]: APP_OK: sent OFFBOARD mode command
+[INFO] [1776532144.226918248] [offboard_trajectory]: APP_OK: sent ARM command
+[INFO] [1776532145.274199760] [offboard_trajectory]: APP_OK: sent OFFBOARD mode command
+[INFO] [1776532145.276141059] [offboard_trajectory]: APP_OK: sent ARM command
+[INFO] [1776532146.276981676] [offboard_trajectory]: APP_OK: sent OFFBOARD mode command
+[INFO] [1776532146.278587076] [offboard_trajectory]: APP_OK: sent ARM command
+[INFO] [1776532147.324205679] [offboard_trajectory]: APP_OK: sent OFFBOARD mode command
+[INFO] [1776532147.325672279] [offboard_trajectory]: APP_OK: sent ARM command
+[INFO] [1776532148.324653088] [offboard_trajectory]: APP_OK: sent OFFBOARD mode command
+[INFO] [1776532148.325512588] [offboard_trajectory]: APP_OK: sent ARM command
+[INFO] [1776532149.327044992] [offboard_trajectory]: APP_OK: sent OFFBOARD mode command
+[INFO] [1776532149.328712492] [offboard_trajectory]: APP_OK: sent ARM command
+[INFO] [1776532150.381456981] [offboard_trajectory]: APP_OK: sent OFFBOARD mode command
+[INFO] [1776532150.384332581] [offboard_trajectory]: APP_OK: sent ARM command
+[INFO] [1776532151.424847821] [offboard_trajectory]: APP_OK: sent OFFBOARD mode command
+[INFO] [1776532151.426107121] [offboard_trajectory]: APP_OK: sent ARM command
+[INFO] [1776532152.425050964] [offboard_trajectory]: APP_OK: sent OFFBOARD mode command
+[INFO] [1776532152.425624164] [offboard_trajectory]: APP_OK: sent ARM command
+[INFO] [1776532153.435224601] [offboard_trajectory]: APP_OK: sent OFFBOARD mode command
+[INFO] [1776532153.435887001] [offboard_trajectory]: APP_OK: sent ARM command
+[INFO] [1776532154.478605625] [offboard_trajectory]: APP_OK: sent OFFBOARD mode command
+[INFO] [1776532154.479231824] [offboard_trajectory]: APP_OK: sent ARM command
+[INFO] [1776532155.526190943] [offboard_trajectory]: APP_OK: sent OFFBOARD mode command
+[INFO] [1776532155.527945142] [offboard_trajectory]: APP_OK: sent ARM command
+[INFO] [1776532156.527550670] [offboard_trajectory]: APP_OK: sent OFFBOARD mode command
+[INFO] [1776532156.534155168] [offboard_trajectory]: APP_OK: sent ARM command
+[INFO] [1776532157.576485279] [offboard_trajectory]: APP_OK: sent OFFBOARD mode command
+[INFO] [1776532157.577142979] [offboard_trajectory]: APP_OK: sent ARM command
+[INFO] [1776532158.630430087] [offboard_trajectory]: APP_OK: sent OFFBOARD mode command
+[INFO] [1776532158.640000691] [offboard_trajectory]: APP_OK: sent ARM command
+[INFO] [1776532159.674826886] [offboard_trajectory]: APP_OK: sent OFFBOARD mode command
+[INFO] [1776532159.675267287] [offboard_trajectory]: APP_OK: sent ARM command
+[INFO] [1776532160.681125667] [offboard_trajectory]: APP_OK: sent OFFBOARD mode command
+[INFO] [1776532160.681915767] [offboard_trajectory]: APP_OK: sent ARM command
+[INFO] [1776532161.724629657] [offboard_trajectory]: APP_OK: sent OFFBOARD mode command
+[INFO] [1776532161.725244858] [offboard_trajectory]: APP_OK: sent ARM command
+[INFO] [1776532162.725190928] [offboard_trajectory]: APP_OK: sent OFFBOARD mode command
+[INFO] [1776532162.726920829] [offboard_trajectory]: APP_OK: sent ARM command
+[INFO] [1776532163.724676894] [offboard_trajectory]: APP_OK: sent OFFBOARD mode command
+[INFO] [1776532163.726329995] [offboard_trajectory]: APP_OK: sent ARM command
+[INFO] [1776532164.732213259] [offboard_trajectory]: APP_OK: sent OFFBOARD mode command
+[INFO] [1776532164.733013060] [offboard_trajectory]: APP_OK: sent ARM command
+[INFO] [1776532165.733678958] [offboard_trajectory]: APP_OK: sent OFFBOARD mode command
+[INFO] [1776532165.734359758] [offboard_trajectory]: APP_OK: sent ARM command
+[INFO] [1776532166.784004408] [offboard_trajectory]: APP_OK: sent OFFBOARD mode command
+[INFO] [1776532166.784795113] [offboard_trajectory]: APP_OK: sent ARM command
+[INFO] [1776532167.783180369] [offboard_trajectory]: APP_OK: sent OFFBOARD mode command
+[INFO] [1776532167.785028480] [offboard_trajectory]: APP_OK: sent ARM command
+[INFO] [1776532168.825700285] [offboard_trajectory]: APP_OK: sent OFFBOARD mode command
+[INFO] [1776532168.826213485] [offboard_trajectory]: APP_OK: sent ARM command
+[INFO] [1776532169.875051348] [offboard_trajectory]: APP_OK: sent OFFBOARD mode command
+[INFO] [1776532169.875670947] [offboard_trajectory]: APP_OK: sent ARM command
+[INFO] [1776532170.925771806] [offboard_trajectory]: APP_OK: sent OFFBOARD mode command
+[INFO] [1776532170.926446005] [offboard_trajectory]: APP_OK: sent ARM command
+[INFO] [1776532171.977717159] [offboard_trajectory]: APP_OK: sent OFFBOARD mode command
+[INFO] [1776532171.978924659] [offboard_trajectory]: APP_OK: sent ARM command
+[INFO] [1776532172.975969626] [offboard_trajectory]: APP_OK: sent OFFBOARD mode command
+[INFO] [1776532172.977262626] [offboard_trajectory]: APP_OK: sent ARM command
+[INFO] [1776532173.975550489] [offboard_trajectory]: APP_OK: sent OFFBOARD mode command
+[INFO] [1776532173.976068889] [offboard_trajectory]: APP_OK: sent ARM command
+[INFO] [1776532174.976086031] [offboard_trajectory]: APP_OK: sent OFFBOARD mode command
+[INFO] [1776532174.976648830] [offboard_trajectory]: APP_OK: sent ARM command
+[INFO] [1776532175.980960976] [offboard_trajectory]: APP_OK: sent OFFBOARD mode command
+[INFO] [1776532175.990586974] [offboard_trajectory]: APP_OK: sent ARM command
+[INFO] [1776532177.027115911] [offboard_trajectory]: APP_OK: sent OFFBOARD mode command
+[INFO] [1776532177.027720911] [offboard_trajectory]: APP_OK: sent ARM command
+[INFO] [1776532178.027417849] [offboard_trajectory]: APP_OK: sent OFFBOARD mode command
+[INFO] [1776532178.028272949] [offboard_trajectory]: APP_OK: sent ARM command
+[INFO] [1776532179.075893176] [offboard_trajectory]: APP_OK: sent OFFBOARD mode command
+[INFO] [1776532179.077073476] [offboard_trajectory]: APP_OK: sent ARM command
+[INFO] [1776532180.077346806] [offboard_trajectory]: APP_OK: sent OFFBOARD mode command
+[INFO] [1776532180.078040706] [offboard_trajectory]: APP_OK: sent ARM command
+[INFO] [1776532181.128742624] [offboard_trajectory]: APP_OK: sent OFFBOARD mode command
+[INFO] [1776532181.129549524] [offboard_trajectory]: APP_OK: sent ARM command
+[INFO] [1776532182.174480839] [offboard_trajectory]: APP_OK: sent OFFBOARD mode command
+[INFO] [1776532182.175205239] [offboard_trajectory]: APP_OK: sent ARM command
+[INFO] [1776532183.177636020] [offboard_trajectory]: APP_OK: sent OFFBOARD mode command
+[INFO] [1776532183.190122319] [offboard_trajectory]: APP_OK: sent ARM command
+[INFO] [1776532184.176274641] [offboard_trajectory]: APP_OK: sent OFFBOARD mode command
+[INFO] [1776532184.177183941] [offboard_trajectory]: APP_OK: sent ARM command
+[INFO] [1776532185.224229856] [offboard_trajectory]: APP_OK: sent OFFBOARD mode command
+[INFO] [1776532185.224872655] [offboard_trajectory]: APP_OK: sent ARM command
+[INFO] [1776532186.224473170] [offboard_trajectory]: APP_OK: sent OFFBOARD mode command
+[INFO] [1776532186.225062370] [offboard_trajectory]: APP_OK: sent ARM command
+[INFO] [1776532187.225403380] [offboard_trajectory]: APP_OK: sent OFFBOARD mode command
+[INFO] [1776532187.226069180] [offboard_trajectory]: APP_OK: sent ARM command
+[INFO] [1776532188.283204882] [offboard_trajectory]: APP_OK: sent OFFBOARD mode command
+[INFO] [1776532188.284220182] [offboard_trajectory]: APP_OK: sent ARM command
+[INFO] [1776532189.329535480] [offboard_trajectory]: APP_OK: sent OFFBOARD mode command
+[INFO] [1776532189.330175780] [offboard_trajectory]: APP_OK: sent ARM command
+[INFO] [1776532190.384893573] [offboard_trajectory]: APP_OK: sent OFFBOARD mode command
+[INFO] [1776532190.385643873] [offboard_trajectory]: APP_OK: sent ARM command
+[INFO] [1776532191.426958653] [offboard_trajectory]: APP_OK: sent OFFBOARD mode command
+[INFO] [1776532191.432940153] [offboard_trajectory]: APP_OK: sent ARM command
+[INFO] [1776532192.430821159] [offboard_trajectory]: APP_OK: sent OFFBOARD mode command
+[INFO] [1776532192.431414459] [offboard_trajectory]: APP_OK: sent ARM command
+[INFO] [1776532193.475819361] [offboard_trajectory]: APP_OK: sent OFFBOARD mode command
+[INFO] [1776532193.476723561] [offboard_trajectory]: APP_OK: sent ARM command
+[INFO] [1776532194.486720959] [offboard_trajectory]: APP_OK: sent OFFBOARD mode command
+[INFO] [1776532194.487476759] [offboard_trajectory]: APP_OK: sent ARM command
+[INFO] [1776532195.526979753] [offboard_trajectory]: APP_OK: sent OFFBOARD mode command
+[INFO] [1776532195.534209653] [offboard_trajectory]: APP_OK: sent ARM command
+[INFO] [1776532196.578844043] [offboard_trajectory]: APP_OK: sent OFFBOARD mode command
+[INFO] [1776532196.579608643] [offboard_trajectory]: APP_OK: sent ARM command
+[INFO] [1776532197.586479230] [offboard_trajectory]: APP_OK: sent OFFBOARD mode command
+[INFO] [1776532197.587109630] [offboard_trajectory]: APP_OK: sent ARM command
+[INFO] [1776532198.624365512] [offboard_trajectory]: APP_OK: sent OFFBOARD mode command
+[INFO] [1776532198.625040012] [offboard_trajectory]: APP_OK: sent ARM command
+[INFO] [1776532199.629484535] [offboard_trajectory]: APP_OK: sent OFFBOARD mode command
+[INFO] [1776532199.630802335] [offboard_trajectory]: APP_OK: sent ARM command
+[INFO] [1776532200.628531871] [offboard_trajectory]: APP_OK: sent OFFBOARD mode command
+[INFO] [1776532200.629136971] [offboard_trajectory]: APP_OK: sent ARM command
+[INFO] [1776532201.674247014] [offboard_trajectory]: APP_OK: sent OFFBOARD mode command
+[INFO] [1776532201.674905814] [offboard_trajectory]: APP_OK: sent ARM command
+[INFO] [1776532202.674446342] [offboard_trajectory]: APP_OK: sent OFFBOARD mode command
+[INFO] [1776532202.675041243] [offboard_trajectory]: APP_OK: sent ARM command
+[INFO] [1776532203.691321671] [offboard_trajectory]: APP_OK: sent OFFBOARD mode command
+[INFO] [1776532203.692199072] [offboard_trajectory]: APP_OK: sent ARM command
+[INFO] [1776532204.724195300] [offboard_trajectory]: APP_OK: sent OFFBOARD mode command
+[INFO] [1776532204.724803600] [offboard_trajectory]: APP_OK: sent ARM command
+[INFO] [1776532205.724211718] [offboard_trajectory]: APP_OK: sent OFFBOARD mode command
+[INFO] [1776532205.724905018] [offboard_trajectory]: APP_OK: sent ARM command
+[INFO] [1776532206.724315378] [offboard_trajectory]: APP_OK: sent OFFBOARD mode command
+[INFO] [1776532206.724854878] [offboard_trajectory]: APP_OK: sent ARM command
+[INFO] [1776532207.727396493] [offboard_trajectory]: APP_OK: sent OFFBOARD mode command
+[INFO] [1776532207.728621793] [offboard_trajectory]: APP_OK: sent ARM command
+[INFO] [1776532208.778006320] [offboard_trajectory]: APP_OK: sent OFFBOARD mode command
+[INFO] [1776532208.780352920] [offboard_trajectory]: APP_OK: sent ARM command
+[INFO] [1776532209.824502942] [offboard_trajectory]: APP_OK: sent OFFBOARD mode command
+[INFO] [1776532209.825073242] [offboard_trajectory]: APP_OK: sent ARM command
+[INFO] [1776532210.874511461] [offboard_trajectory]: APP_OK: sent OFFBOARD mode command
+[INFO] [1776532210.876516861] [offboard_trajectory]: APP_OK: sent ARM command
+[INFO] [1776532211.879302376] [offboard_trajectory]: APP_OK: sent OFFBOARD mode command
+[INFO] [1776532211.879900576] [offboard_trajectory]: APP_OK: sent ARM command
+[INFO] [1776532212.926452287] [offboard_trajectory]: APP_OK: sent OFFBOARD mode command
+[INFO] [1776532212.927769087] [offboard_trajectory]: APP_OK: sent ARM command
+[INFO] [1776532213.928952494] [offboard_trajectory]: APP_OK: sent OFFBOARD mode command
+[INFO] [1776532213.929759094] [offboard_trajectory]: APP_OK: sent ARM command
+[INFO] [1776532214.974525103] [offboard_trajectory]: APP_OK: sent OFFBOARD mode command
+[INFO] [1776532214.975151703] [offboard_trajectory]: APP_OK: sent ARM command
+[INFO] [1776532215.974647148] [offboard_trajectory]: APP_OK: sent OFFBOARD mode command
+[INFO] [1776532215.975273148] [offboard_trajectory]: APP_OK: sent ARM command
+[INFO] [1776532216.974827790] [offboard_trajectory]: APP_OK: sent OFFBOARD mode command
+[INFO] [1776532216.978221390] [offboard_trajectory]: APP_OK: sent ARM command
+[INFO] [1776532218.024306430] [offboard_trajectory]: APP_OK: sent OFFBOARD mode command
+[INFO] [1776532218.024980730] [offboard_trajectory]: APP_OK: sent ARM command
+[INFO] [1776532219.074553467] [offboard_trajectory]: APP_OK: sent OFFBOARD mode command
+[INFO] [1776532219.075216067] [offboard_trajectory]: APP_OK: sent ARM command
+[INFO] [1776532220.082783198] [offboard_trajectory]: APP_OK: sent OFFBOARD mode command
+[INFO] [1776532220.083454198] [offboard_trajectory]: APP_OK: sent ARM command
+[INFO] [1776532221.084647726] [offboard_trajectory]: APP_OK: sent OFFBOARD mode command
+[INFO] [1776532221.087560426] [offboard_trajectory]: APP_OK: sent ARM command
+[INFO] [1776532222.124264651] [offboard_trajectory]: APP_OK: sent OFFBOARD mode command
+[INFO] [1776532222.129567051] [offboard_trajectory]: APP_OK: sent ARM command
+[INFO] [1776532223.124728779] [offboard_trajectory]: APP_OK: sent OFFBOARD mode command
+[INFO] [1776532223.125802879] [offboard_trajectory]: APP_OK: sent ARM command
+[INFO] [1776532224.183136438] [offboard_trajectory]: APP_OK: sent OFFBOARD mode command
+[INFO] [1776532224.184256538] [offboard_trajectory]: APP_OK: sent ARM command
+[INFO] [1776532225.225611591] [offboard_trajectory]: APP_OK: sent OFFBOARD mode command
+[INFO] [1776532225.232102892] [offboard_trajectory]: APP_OK: sent ARM command
+[INFO] [1776532226.278997742] [offboard_trajectory]: APP_OK: sent OFFBOARD mode command
+[INFO] [1776532226.281103042] [offboard_trajectory]: APP_OK: sent ARM command
+[INFO] [1776532227.327290389] [offboard_trajectory]: APP_OK: sent OFFBOARD mode command
+[INFO] [1776532227.337865589] [offboard_trajectory]: APP_OK: sent ARM command
+[INFO] [1776532228.376599531] [offboard_trajectory]: APP_OK: sent OFFBOARD mode command
+[INFO] [1776532228.377327432] [offboard_trajectory]: APP_OK: sent ARM command
+[INFO] [1776532229.375240269] [offboard_trajectory]: APP_OK: sent OFFBOARD mode command
+[INFO] [1776532229.376976469] [offboard_trajectory]: APP_OK: sent ARM command
+[INFO] [1776532230.430507905] [offboard_trajectory]: APP_OK: sent OFFBOARD mode command
+[INFO] [1776532230.431176005] [offboard_trajectory]: APP_OK: sent ARM command
+[INFO] [1776532231.486827465] [offboard_trajectory]: APP_OK: sent OFFBOARD mode command
+[INFO] [1776532231.487367265] [offboard_trajectory]: APP_OK: sent ARM command
+[INFO] [1776532232.506283644] [offboard_trajectory]: APP_OK: sent OFFBOARD mode command
+[INFO] [1776532232.507029844] [offboard_trajectory]: APP_OK: sent ARM command
+[INFO] [1776532233.535586420] [offboard_trajectory]: APP_OK: sent OFFBOARD mode command
+[INFO] [1776532233.536878319] [offboard_trajectory]: APP_OK: sent ARM command
+[INFO] [1776532234.525784596] [offboard_trajectory]: APP_OK: sent OFFBOARD mode command
+[INFO] [1776532234.526683796] [offboard_trajectory]: APP_OK: sent ARM command
+[INFO] [1776532235.574163062] [offboard_trajectory]: APP_OK: sent OFFBOARD mode command
+[INFO] [1776532235.574687462] [offboard_trajectory]: APP_OK: sent ARM command
+[INFO] [1776532236.574519130] [offboard_trajectory]: APP_OK: sent OFFBOARD mode command
+[INFO] [1776532236.575134130] [offboard_trajectory]: APP_OK: sent ARM command
+[INFO] [1776532237.575186695] [offboard_trajectory]: APP_OK: sent OFFBOARD mode command
+[INFO] [1776532237.576567595] [offboard_trajectory]: APP_OK: sent ARM command
+[INFO] [1776532238.588627755] [offboard_trajectory]: APP_OK: sent OFFBOARD mode command
+[INFO] [1776532238.596682954] [offboard_trajectory]: APP_OK: sent ARM command
+[INFO] [1776532239.625807712] [offboard_trajectory]: APP_OK: sent OFFBOARD mode command
+[INFO] [1776532239.626486212] [offboard_trajectory]: APP_OK: sent ARM command
+[INFO] [1776532240.677787966] [offboard_trajectory]: APP_OK: sent OFFBOARD mode command
+[INFO] [1776532240.682841266] [offboard_trajectory]: APP_OK: sent ARM command
+[INFO] [1776532241.726512817] [offboard_trajectory]: APP_OK: sent OFFBOARD mode command
+[INFO] [1776532241.727088217] [offboard_trajectory]: APP_OK: sent ARM command
+[INFO] [1776532242.727160962] [offboard_trajectory]: APP_OK: sent OFFBOARD mode command
+[INFO] [1776532242.730071662] [offboard_trajectory]: APP_OK: sent ARM command
+[INFO] [1776532243.774871105] [offboard_trajectory]: APP_OK: sent OFFBOARD mode command
+[INFO] [1776532243.775456505] [offboard_trajectory]: APP_OK: sent ARM command
+[INFO] [1776532244.775148943] [offboard_trajectory]: APP_OK: sent OFFBOARD mode command
+[INFO] [1776532244.775896643] [offboard_trajectory]: APP_OK: sent ARM command
+[INFO] [1776532245.776978478] [offboard_trajectory]: APP_OK: sent OFFBOARD mode command
+[INFO] [1776532245.777599878] [offboard_trajectory]: APP_OK: sent ARM command
+[INFO] [1776532246.783838090] [offboard_trajectory]: APP_OK: sent OFFBOARD mode command
+[INFO] [1776532246.784665790] [offboard_trajectory]: APP_OK: sent ARM command
+[INFO] [1776532247.824705324] [offboard_trajectory]: APP_OK: sent OFFBOARD mode command
+[INFO] [1776532247.825244924] [offboard_trajectory]: APP_OK: sent ARM command
+[INFO] [1776532248.824815066] [offboard_trajectory]: APP_OK: sent OFFBOARD mode command
+[INFO] [1776532248.825831365] [offboard_trajectory]: APP_OK: sent ARM command
+[INFO] [1776532249.880051195] [offboard_trajectory]: APP_OK: sent OFFBOARD mode command
+[INFO] [1776532249.880717195] [offboard_trajectory]: APP_OK: sent ARM command
+[INFO] [1776532250.930271621] [offboard_trajectory]: APP_OK: sent OFFBOARD mode command
+[INFO] [1776532250.931121921] [offboard_trajectory]: APP_OK: sent ARM command
+[INFO] [1776532251.930868453] [offboard_trajectory]: APP_OK: sent OFFBOARD mode command
+[INFO] [1776532251.931459853] [offboard_trajectory]: APP_OK: sent ARM command
+[INFO] [1776532252.975556773] [offboard_trajectory]: APP_OK: sent OFFBOARD mode command
+[INFO] [1776532252.976178273] [offboard_trajectory]: APP_OK: sent ARM command
+[INFO] [1776532254.027431489] [offboard_trajectory]: APP_OK: sent OFFBOARD mode command
+[INFO] [1776532254.032630188] [offboard_trajectory]: APP_OK: sent ARM command
+[INFO] [1776532255.074664102] [offboard_trajectory]: APP_OK: sent OFFBOARD mode command
+[INFO] [1776532255.075714502] [offboard_trajectory]: APP_OK: sent ARM command
+[INFO] [1776532256.077919125] [offboard_trajectory]: APP_OK: sent OFFBOARD mode command
+[INFO] [1776532256.079026525] [offboard_trajectory]: APP_OK: sent ARM command
+[INFO] [1776532257.130091277] [offboard_trajectory]: APP_OK: sent OFFBOARD mode command
+[INFO] [1776532257.132443977] [offboard_trajectory]: APP_OK: sent ARM command
+[INFO] [1776532258.174553425] [offboard_trajectory]: APP_OK: sent OFFBOARD mode command
+[INFO] [1776532258.175833725] [offboard_trajectory]: APP_OK: sent ARM command
+[INFO] [1776532259.179104269] [offboard_trajectory]: APP_OK: sent OFFBOARD mode command
+[INFO] [1776532259.182976569] [offboard_trajectory]: APP_OK: sent ARM command
+[INFO] [1776532260.225816110] [offboard_trajectory]: APP_OK: sent OFFBOARD mode command
+[INFO] [1776532260.226639910] [offboard_trajectory]: APP_OK: sent ARM command
+[INFO] [1776532261.274177148] [offboard_trajectory]: APP_OK: sent OFFBOARD mode command
+[INFO] [1776532261.274558848] [offboard_trajectory]: APP_OK: sent ARM command
+[INFO] [1776532262.274444519] [offboard_trajectory]: APP_OK: sent OFFBOARD mode command
+[INFO] [1776532262.275085919] [offboard_trajectory]: APP_OK: sent ARM command
+[INFO] [1776532263.278073424] [offboard_trajectory]: APP_OK: sent OFFBOARD mode command
+[INFO] [1776532263.278800824] [offboard_trajectory]: APP_OK: sent ARM command
+[INFO] [1776532264.324138611] [offboard_trajectory]: APP_OK: sent OFFBOARD mode command
+[INFO] [1776532264.324656011] [offboard_trajectory]: APP_OK: sent ARM command
+[INFO] [1776532265.324481704] [offboard_trajectory]: APP_OK: sent OFFBOARD mode command
+[INFO] [1776532265.325062204] [offboard_trajectory]: APP_OK: sent ARM command
+[INFO] [1776532266.381110781] [offboard_trajectory]: APP_OK: sent OFFBOARD mode command
+[INFO] [1776532266.388945280] [offboard_trajectory]: APP_OK: sent ARM command
+[INFO] [1776532267.424255759] [offboard_trajectory]: APP_OK: sent OFFBOARD mode command
+[INFO] [1776532267.424884658] [offboard_trajectory]: APP_OK: sent ARM command
+[INFO] [1776532268.447025937] [offboard_trajectory]: APP_OK: sent OFFBOARD mode command
+[INFO] [1776532268.448035037] [offboard_trajectory]: APP_OK: sent ARM command
+[INFO] [1776532269.476606010] [offboard_trajectory]: APP_OK: sent OFFBOARD mode command
+[INFO] [1776532269.477406210] [offboard_trajectory]: APP_OK: sent ARM command
+[INFO] [1776532270.478013987] [offboard_trajectory]: APP_OK: sent OFFBOARD mode command
+[INFO] [1776532270.479590286] [offboard_trajectory]: APP_OK: sent ARM command
+[INFO] [1776532271.479054361] [offboard_trajectory]: APP_OK: sent OFFBOARD mode command
+[INFO] [1776532271.481013661] [offboard_trajectory]: APP_OK: sent ARM command
+[INFO] [1776532272.525378157] [offboard_trajectory]: APP_OK: sent OFFBOARD mode command
+[INFO] [1776532272.526019857] [offboard_trajectory]: APP_OK: sent ARM command
+[INFO] [1776532273.576299049] [offboard_trajectory]: APP_OK: sent OFFBOARD mode command
+[INFO] [1776532273.578885249] [offboard_trajectory]: APP_OK: sent ARM command
+[INFO] [1776532274.582535547] [offboard_trajectory]: APP_OK: sent OFFBOARD mode command
+[INFO] [1776532274.583137747] [offboard_trajectory]: APP_OK: sent ARM command
+[INFO] [1776532275.627424433] [offboard_trajectory]: APP_OK: sent OFFBOARD mode command
+[INFO] [1776532275.628164933] [offboard_trajectory]: APP_OK: sent ARM command

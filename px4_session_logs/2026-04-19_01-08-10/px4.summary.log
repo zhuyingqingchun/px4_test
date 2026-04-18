@@ -1,0 +1,4 @@
+WARN  [health_and_arming_checks] Preflight Fail: ekf2 missing data
+WARN  [health_and_arming_checks] Preflight Fail: No connection to the GCS
+INFO  [tone_alarm] home set
+INFO  [px4] Startup script returned successfully
