@@ -24,6 +24,8 @@ fi
 for alert_log in "${alert_logs[@]}"; do
   base_name="$(basename "$alert_log" .alerts.log)"
   full_log="$LOG_PATH/${base_name}.log"
+  retained_tail_preview_lines=$(( CONTEXT_LINES * 2 + 1 ))
+  has_original_line_prefix=0
 
   echo "===== ${base_name} ====="
 
@@ -40,36 +42,44 @@ for alert_log in "${alert_logs[@]}"; do
     continue
   fi
 
+  if grep -qE '^[0-9]+:' "$full_log"; then
+    has_original_line_prefix=1
+  fi
+
   while IFS= read -r entry; do
     [[ -z "$entry" ]] && continue
     line_no="${entry%%:*}"
     echo "--- alert at ${base_name}.log:${line_no} ---"
 
-    if ! awk -v target="$line_no" -v ctx="$CONTEXT_LINES" '
-      {
-        lines[NR] = $0
-        if ($0 ~ ("^" target ":")) {
-          hit = NR
+    if [[ "$has_original_line_prefix" == "1" ]]; then
+      if ! awk -v target="$line_no" -v ctx="$CONTEXT_LINES" '
+        {
+          lines[NR] = $0
+          if ($0 ~ ("^" target ":")) {
+            hit = NR
+          }
         }
-      }
-      END {
-        if (!hit) {
-          exit 1
+        END {
+          if (!hit) {
+            exit 1
+          }
+          start = (hit > ctx ? hit - ctx : 1)
+          end = hit + ctx
+          for (i = start; i <= end && i <= NR; i++) {
+            print lines[i]
+          }
         }
-        start = (hit > ctx ? hit - ctx : 1)
-        end = hit + ctx
-        for (i = start; i <= end && i <= NR; i++) {
-          print lines[i]
-        }
-      }
-    ' "$full_log"; then
+      ' "$full_log"; then
+        echo "(alert not present in retained full-log tail; showing latest retained context)"
+        tail -n "$retained_tail_preview_lines" "$full_log"
+      fi
+    else
       if [[ "$line_no" =~ ^[0-9]+$ ]]; then
         start=$(( line_no > CONTEXT_LINES ? line_no - CONTEXT_LINES : 1 ))
         end=$(( line_no + CONTEXT_LINES ))
-        echo "(context not found in retained tail; falling back to file line numbers)"
         sed -n "${start},${end}p" "$full_log"
       else
-        echo "(context not found in retained tail; showing alert line only)"
+        echo "(alert line number is not numeric; showing alert line only)"
         echo "$entry"
       fi
     fi

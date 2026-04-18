@@ -66,7 +66,7 @@ awk \
   -v alert_rate_limit_sec="$alert_rate_limit_sec" '
 BEGIN {
   alert_re = "(WARN|ERROR|CRITICAL|FATAL|FAIL|Traceback|Exception|critical:|error:|warning:)"
-  success_re = "(Startup script returned successfully|Gazebo world is ready|Spawning Gazebo model|Ready for takeoff!|logger started|Opened full log file|session established|participant created|create_client|synchronized with time offset|node started|Sent command:|home set|init UDP agent IP)"
+  success_re = "(Startup script returned successfully|Gazebo world is ready|Spawning Gazebo model|Ready for takeoff!|logger started|Opened full log file|session established|participant created|create_client|synchronized with time offset|node started|Sent command:|home set|init UDP agent IP|nav_state changed|arming_state changed|vehicle command accepted|entering takeoff hold|starting trajectory)"
   summary_re = "(Startup script returned successfully|Gazebo world is ready|Spawning Gazebo model|Ready for takeoff!|logger started|Opened full log file|session established|participant created|create_client|synchronized with time offset|node started|Sent command:|home set|ARM|OFFBOARD|takeoff|land|connected|partner IP|nav_state changed|arming_state changed|vehicle command accepted|entering takeoff hold|starting trajectory)"
 
   full_written = 0
@@ -76,14 +76,16 @@ BEGIN {
   alert_truncated = 0
   summary_truncated = 0
   full_lines_since_trim = 0
+  full_trim_failed = 0
 
+  full_tail_lines += 0
+  full_trim_every += 0
+
+  if (full_tail_lines < 0) {
+    full_tail_lines = 0
+  }
   if (full_trim_every < 1) {
     full_trim_every = 1
-  }
-
-  if (disable_full_log == "1") {
-    note = "[stream_log] full log disabled for this component"
-    write_limited("full", note)
   }
 }
 
@@ -108,7 +110,14 @@ function double_quote(text,    out) {
   return "\"" out "\""
 }
 
-function trim_full_log_tail(    cmd, tmp) {
+function full_log_line(line_no, clean_line) {
+  if (full_tail_lines > 0) {
+    return sprintf("%d:%s", line_no, clean_line)
+  }
+  return clean_line
+}
+
+function trim_full_log_tail(    cmd, tmp, rc) {
   if (disable_full_log == "1") {
     return
   }
@@ -116,9 +125,15 @@ function trim_full_log_tail(    cmd, tmp) {
     return
   }
 
+  close(full_log)
+
   tmp = full_log ".tmp"
-  cmd = "tail -n " full_tail_lines " " double_quote(full_log) " > " double_quote(tmp) " && mv " double_quote(tmp) " " double_quote(full_log)
-  system(cmd)
+  cmd = "tail -n " full_tail_lines " " double_quote(full_log) " > " double_quote(tmp) " && mv " double_quote(tmp) " " double_quote(full_log) " || rm -f " double_quote(tmp)
+  rc = system(cmd)
+  if (rc != 0 && !full_trim_failed) {
+    write_limited("summary", "[stream_log][WARN] failed to trim full log tail")
+    full_trim_failed = 1
+  }
 }
 
 function normalize_alert_key(text,    out) {
@@ -248,7 +263,9 @@ function flush_suppressed_alerts(now_ts,    key, msg) {
     next
   }
 
-  write_limited("full", sprintf("%d:%s", NR, clean_line))
+  noisy_success = is_noisy_success(component, clean_line)
+
+  write_limited("full", full_log_line(NR, clean_line))
 
   is_alert = ($0 ~ alert_re)
   is_success = ($0 ~ success_re)
@@ -272,10 +289,10 @@ function flush_suppressed_alerts(now_ts,    key, msg) {
   } else {
     flush_suppressed_alerts(now_ts)
 
-    if (is_summary && !is_noisy_success(component, clean_line)) {
+    if (is_summary && !noisy_success) {
       write_limited("summary", clean_line)
     }
-    if (mode == "concise" && is_success && !is_noisy_success(component, clean_line)) {
+    if (mode == "concise" && is_success && !noisy_success) {
       printf("[%s][OK] %s\n", component, clean_line)
       fflush()
     }
@@ -284,5 +301,8 @@ function flush_suppressed_alerts(now_ts,    key, msg) {
 END {
   flush_suppressed_alerts(systime())
   trim_full_log_tail()
+  close(full_log)
+  close(alert_log)
+  close(summary_log)
 }
 ' 
