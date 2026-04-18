@@ -15,12 +15,17 @@ mode="$5"
 mkdir -p "$(dirname "$full_log")" "$(dirname "$alert_log")" "$(dirname "$summary_log")"
 
 # Long-run safety defaults:
-# - Disable PX4 full text log by default. PX4 can emit extremely repetitive errors for hours,
-#   and full stdout/stderr mirroring can grow to multi-GB files and stall the machine.
+# - Keep recent PX4 full log context via a tail-preserved log by default.
+#   This avoids unbounded growth while keeping enough lines for alert context inspection.
 # - Keep alert/summary logs, but rate-limit similar alerts and cap file sizes.
 #
 # Optional overrides:
-#   PX4_DISABLE_FULL_LOG=0                # re-enable px4 full_log if really needed
+#   PX4_DISABLE_FULL_LOG=1                # disable px4 full_log entirely
+#   PX4_FULL_LOG_TAIL_LINES=4000          # keep only the most recent N full-log lines for px4
+#   PX4_FULL_LOG_TRIM_EVERY=200           # trim the retained tail every N new lines
+#   STREAM_LOG_DISABLE_FULL_LOG=0
+#   STREAM_LOG_FULL_TAIL_LINES=0          # 0 disables tail trimming for non-px4 components
+#   STREAM_LOG_FULL_TRIM_EVERY=200
 #   STREAM_LOG_MAX_FULL_MB=100
 #   STREAM_LOG_MAX_ALERT_MB=50
 #   STREAM_LOG_MAX_SUMMARY_MB=20
@@ -28,9 +33,13 @@ mkdir -p "$(dirname "$full_log")" "$(dirname "$alert_log")" "$(dirname "$summary
 #
 # Only exported environment variables are inherited by this script.
 if [[ "$component" == "px4" ]]; then
-  disable_full_log="${PX4_DISABLE_FULL_LOG:-1}"
+  disable_full_log="${PX4_DISABLE_FULL_LOG:-0}"
+  full_tail_lines="${PX4_FULL_LOG_TAIL_LINES:-4000}"
+  full_trim_every="${PX4_FULL_LOG_TRIM_EVERY:-200}"
 else
   disable_full_log="${STREAM_LOG_DISABLE_FULL_LOG:-0}"
+  full_tail_lines="${STREAM_LOG_FULL_TAIL_LINES:-0}"
+  full_trim_every="${STREAM_LOG_FULL_TRIM_EVERY:-200}"
 fi
 
 max_full_mb="${STREAM_LOG_MAX_FULL_MB:-100}"
@@ -49,6 +58,8 @@ awk \
   -v mode="$mode" \
   -v component="$component" \
   -v disable_full_log="$disable_full_log" \
+  -v full_tail_lines="$full_tail_lines" \
+  -v full_trim_every="$full_trim_every" \
   -v max_full_bytes="$(( max_full_mb * 1024 * 1024 ))" \
   -v max_alert_bytes="$(( max_alert_mb * 1024 * 1024 ))" \
   -v max_summary_bytes="$(( max_summary_mb * 1024 * 1024 ))" \
@@ -64,6 +75,11 @@ BEGIN {
   full_truncated = 0
   alert_truncated = 0
   summary_truncated = 0
+  full_lines_since_trim = 0
+
+  if (full_trim_every < 1) {
+    full_trim_every = 1
+  }
 
   if (disable_full_log == "1") {
     note = "[stream_log] full log disabled for this component"
@@ -86,6 +102,25 @@ function is_noisy_success(component, text) {
   return 0
 }
 
+function double_quote(text,    out) {
+  out = text
+  gsub(/["\\]/, "\\\\&", out)
+  return "\"" out "\""
+}
+
+function trim_full_log_tail(    cmd, tmp) {
+  if (disable_full_log == "1") {
+    return
+  }
+  if (full_tail_lines <= 0) {
+    return
+  }
+
+  tmp = full_log ".tmp"
+  cmd = "tail -n " full_tail_lines " " double_quote(full_log) " > " double_quote(tmp) " && mv " double_quote(tmp) " " double_quote(full_log)
+  system(cmd)
+}
+
 function normalize_alert_key(text,    out) {
   out = text
   gsub(/-?[0-9]+\.[0-9]+/, "<num>", out)
@@ -105,6 +140,16 @@ function write_limited(kind, line,    bytes, marker) {
 
   if (kind == "full") {
     if (disable_full_log == "1") {
+      return
+    }
+    if (full_tail_lines > 0) {
+      print line >> full_log
+      fflush(full_log)
+      full_lines_since_trim++
+      if (full_lines_since_trim >= full_trim_every) {
+        trim_full_log_tail()
+        full_lines_since_trim = 0
+      }
       return
     }
     if (full_truncated) {
@@ -203,9 +248,7 @@ function flush_suppressed_alerts(now_ts,    key, msg) {
     next
   }
 
-  noisy_success = is_noisy_success(component, clean_line)
-
-  write_limited("full", clean_line)
+  write_limited("full", sprintf("%d:%s", NR, clean_line))
 
   is_alert = ($0 ~ alert_re)
   is_success = ($0 ~ success_re)
@@ -229,10 +272,10 @@ function flush_suppressed_alerts(now_ts,    key, msg) {
   } else {
     flush_suppressed_alerts(now_ts)
 
-    if (is_summary && !noisy_success) {
+    if (is_summary && !is_noisy_success(component, clean_line)) {
       write_limited("summary", clean_line)
     }
-    if (mode == "concise" && is_success && !noisy_success) {
+    if (mode == "concise" && is_success && !is_noisy_success(component, clean_line)) {
       printf("[%s][OK] %s\n", component, clean_line)
       fflush()
     }
@@ -240,5 +283,6 @@ function flush_suppressed_alerts(now_ts,    key, msg) {
 }
 END {
   flush_suppressed_alerts(systime())
+  trim_full_log_tail()
 }
 ' 
