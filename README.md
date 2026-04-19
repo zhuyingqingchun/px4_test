@@ -35,7 +35,7 @@ This repository **does not include** the following dependencies (as they are mai
 ├── .gitignore
 ├── LICENSE
 ├── README.md
-├── PROJECT_STRUCTURE.md           # This file
+├── PROJECT_STRUCTURE.md           # Project structure documentation
 │
 ├── px4_ros2_ws/                  # ROS 2 workspace
 │   └── src/
@@ -47,65 +47,28 @@ This repository **does not include** the following dependencies (as they are mai
 │           └── package.xml
 │
 ├── px4sh/                        # Session management scripts
-│   ├── start.sh                  # Start full simulation session
+│   ├── start.sh                  # Start simulation session (Agent + PX4/Gazebo + ROS)
 │   ├── stop.sh                   # Stop all services
 │   ├── restart.sh                # Restart services
-│   ├── status.sh                 # Check running services
-│   ├── status_check.sh           # Detailed status check
-│   ├── common.sh                 # Shared functions & path resolution
-│   ├── stream_log.sh             # Log streaming & filtering
-│   ├── read_logs.sh              # Read session logs
-│   ├── show_alert_context.sh     # Show alert context
-│   ├── clean_cache.sh            # Clean caches
-│   ├── px4ctl.sh                 # PX4 control utility
-│   ├── px4_live_position_plotter.py  # 3D trajectory visualization
-│   ├── config.env                 # Local configuration (not committed)
-│   ├── config.env.example        # Configuration template
-│   ├── docs/                     # Documentation
-│   ├── README.md                 # Scripts documentation
-│   └── 会话.md                   # Chinese documentation
+│   ├── common.sh                 # Shared functions & tmux session management
+│   ├── config.env                 # Local configuration
+│   ├── README_minimal.md         # Minimal scripts documentation
 │
 ├── px4_session_logs/             # Session logs (committed)
 │   └── YYYY-MM-DD_HH-MM-SS/     # Timestamped session directories
-│       ├── px4.log               # PX4 full log
-│       ├── px4.alerts.log        # PX4 alerts
-│       ├── px4.summary.log       # PX4 summary
-│       ├── agent.log             # DDS Agent log
-│       ├── agent.alerts.log      # Agent alerts
-│       ├── agent.summary.log     # Agent summary
-│       ├── qgc.log               # QGC log
-│       ├── qgc.alerts.log        # QGC alerts
-│       ├── qgc.summary.log       # QGC summary
-│       ├── ros_app.log           # ROS app log
-│       ├── ros_app.alerts.log    # ROS app alerts
-│       └── ros_app.summary.log   # ROS app summary
-│
-├── .px4_one_click/               # Runtime metadata
+├── .px4_minimal_run/             # Runtime metadata
 ├── patch/                        # Patches for reference
-├── Micro-XRCE-DDS-Agent/         # External DDS agent (cloned)
-└── Documents/                    # QGroundControl data
-    └── QGroundControl/
-        ├── CrashLogs/
-        ├── Logs/
-        ├── Missions/
-        ├── Parameters/
-        ├── Photo/
-        └── Telemetry/
+└── Micro-XRCE-DDS-Agent/         # External DDS agent (cloned)
 ```
 
 ## Quick Start
 
 ### 1. Setup Environment
 
-Copy the configuration template:
-```bash
-cp px4sh/config.env.example px4sh/config.env
-```
-
 Edit `px4sh/config.env` to match your local paths:
 - `PX4_DIR`: Path to your PX4-Autopilot repository (e.g., `~/PX4-Autopilot`)
 - `ROS_WS`: Path to your ROS 2 workspace (e.g., `~/PX4_pro/px4_ros2_ws`)
-- Adjust any other paths as needed
+- Adjust any other settings as needed
 
 ### 2. Build ROS 2 Package
 
@@ -115,50 +78,52 @@ colcon build
 source install/local_setup.bash
 ```
 
-### 3. Start Session
+### 3. Start QGroundControl (Manual)
+
+Open QGroundControl once and keep it running:
+```bash
+~/QGroundControl-x86_64.AppImage
+```
+
+### 4. Start Simulation Session
 
 Run the startup script:
 ```bash
 ./px4sh/start.sh
 ```
 
-This will start:
+This will start in a tmux session:
 1. Micro-XRCE-DDS Agent
 2. PX4 with Gazebo simulation
-3. QGroundControl
-4. ROS 2 offboard control node
+3. ROS 2 offboard control node
 
-### 4. Stop Session
+### 5. Stop Session
 
 ```bash
 ./px4sh/stop.sh
 ```
 
+## tmux Session Management
+
+The scripts use tmux for terminal management:
+
+### tmux Operations
+- **Switch windows**: `Ctrl-b` + number (0 for shell, 1 for agent, 2 for px4, 3 for ros)
+- **Mouse support**: Enabled by default
+  - Click to switch windows
+  - Scroll to view history
+- **Reattach to session**: `tmux attach -t px4_stack`
+
 ## Available Scripts
 
 ### px4sh/start.sh
-Starts the complete simulation session with all services (MicroXRCEAgent → PX4/Gazebo → QGC → ROS).
+Starts the simulation session in a tmux session (Agent → PX4/Gazebo → ROS).
 
 ### px4sh/stop.sh
 Stops all running services and cleans up the session.
 
 ### px4sh/restart.sh
 Restarts the simulation session.
-
-### px4sh/status.sh
-Checks the status of all running services.
-
-### px4sh/read_logs.sh
-Reads and displays session logs.
-
-### px4sh/show_alert_context.sh
-Shows context around alerts in logs.
-
-### px4sh/stream_log.sh
-Streams live logs from the session.
-
-### px4sh/clean_cache.sh
-Cleans up temporary files and caches.
 
 ## Configuration
 
@@ -167,7 +132,11 @@ Edit `px4sh/config.env` to customize:
 - Simulator settings (HEADLESS, Gazebo GUI)
 - ROS 2 settings (ROS_DISTRO, OFFBOARD_CMD)
 - Timing delays between service starts
-- Log directories and cleanup behavior
+
+Key configuration:
+- `ENABLE_QGC=0` - QGC is not managed by scripts (run manually)
+- `ENABLE_ROS=1` - ROS offboard control enabled by default
+- `ENABLE_AGENT=1` - MicroXRCEAgent enabled by default
 
 ## Custom Offboard Control
 
@@ -185,4 +154,4 @@ When contributing:
 1. Keep the repository focused on your custom code
 2. Do not include third-party dependencies (px4_msgs, px4_ros_com, etc.)
 3. Document any new scripts in px4sh/
-4. Update config.env.example if adding new configuration options
+4. Update config.env if adding new configuration options
