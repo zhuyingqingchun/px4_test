@@ -1,0 +1,14 @@
+ground_robot_commander:
+  ros__parameters:
+    cmd_vel_topic: "/ugv/cmd_vel"
+    profile: "square"
+    timer_rate_hz: 10.0
+    use_enable_topic: false
+    start_delay_sec: 6.0
+    publish_idle_before_start: true
+    linear_speed_mps: 0.2
+    angular_speed_rps: 1.57
+    square_side_length_m: 0.6
+    repeat_count: 1
+    auto_stop: true
+    publish_zero_on_shutdown: true
