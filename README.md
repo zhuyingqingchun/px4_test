@@ -27,6 +27,15 @@ This repository **does not include** the following dependencies (as they are mai
    - Clone from: https://github.com/PX4/PX4-Autopilot
    - Place in: `~/PX4-Autopilot/` (or update `PX4_DIR` in config.env)
 
+4. **gz_ros2_control**: Gazebo ROS 2 Control (for UGV simulation)
+   - Clone from: https://github.com/ros-controls/gz_ros2_control.git (jazzy branch)
+   - Place in: `px4_ros2_ws/src/gz_ros2_control/`
+
+5. **ros2_control_demos**: ROS 2 Control Demos (for DiffBot)
+   - Clone from: https://github.com/ros-controls/ros2_control_demos.git (jazzy branch)
+   - Place in: `px4_ros2_ws/src/ros2_control_demos/`
+   - Use `vcs import` with `patch/ugv_open_source.repos`
+
 ## Repository Structure
 
 ```
@@ -39,12 +48,22 @@ This repository **does not include** the following dependencies (as they are mai
 │
 ├── px4_ros2_ws/                  # ROS 2 workspace
 │   └── src/
-│       └── my_px4_offboard/      # Custom offboard control package
-│           ├── my_px4_offboard/
-│           │   ├── __init__.py
-│           │   ├── offboard_takeoff_hover.py   # Takeoff & hover control
-│           │   └── offboard_trajectory.py      # Trajectory following control
-│           └── package.xml
+│       ├── my_px4_offboard/      # Custom offboard control package (UAV)
+│       │   ├── my_px4_offboard/
+│       │   │   ├── __init__.py
+│       │   │   ├── offboard_takeoff_hover.py   # Takeoff & hover control
+│       │   │   ├── offboard_trajectory.py      # Trajectory following control
+│       │   │   └── standard_mission_node.py    # Standard mission executor
+│       │   ├── config/                         # Mission configs
+│       │   ├── launch/                         # Launch files
+│       │   └── package.xml
+│       └── air_ground_playground/  # Air-ground coordination (UAV + UGV)
+│           ├── air_ground_playground/
+│           │   └── ground_robot_commander.py   # UGV command publisher
+│           ├── config/                         # UGV trajectory configs
+│           └── launch/
+│               ├── air_ground_minimal.launch.py    # UAV+UGV together
+│               └── vendor_diffbot_only.launch.py   # UGV only
 │
 ├── px4sh/                        # Session management scripts
 │   ├── start.sh                  # Start simulation session (Agent + PX4/Gazebo + ROS)
@@ -143,6 +162,26 @@ Key configuration:
 The `my_px4_offboard` package contains example offboard control implementations:
 - `offboard_takeoff_hover.py`: Basic takeoff and hover control
 - `offboard_trajectory.py`: Trajectory following control
+- `standard_mission_node.py`: Full mission executor with state machine
+
+## Air-Ground Coordination
+
+The `air_ground_playground` package provides multi-robot coordination:
+- **UAV**: PX4-based drone with offboard control
+- **UGV**: DiffBot differential drive robot with ros2_control
+
+### Launch Options
+
+```bash
+# UAV + UGV together (default)
+ros2 launch air_ground_playground air_ground_minimal.launch.py
+
+# UGV only (DiffBot with ros2_control)
+ros2 launch air_ground_playground vendor_diffbot_only.launch.py
+
+# Custom UGV trajectory
+ros2 launch air_ground_playground air_ground_minimal.launch.py ugv_config:=config/rover_square.yaml
+```
 
 ## License
 
