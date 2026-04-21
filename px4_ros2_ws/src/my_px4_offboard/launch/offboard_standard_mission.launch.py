@@ -1,35 +1,28 @@
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument
-from launch.substitutions import LaunchConfiguration
+from launch.substitutions import LaunchConfiguration, PathJoinSubstitution
 from launch_ros.actions import Node
+from launch_ros.substitutions import FindPackageShare
 
 
-def generate_launch_description() -> LaunchDescription:
-    mission_config_arg = DeclareLaunchArgument(
-        'mission_config',
-        default_value='config/hover.yaml',
-        description='Relative path to mission config inside the package share directory.',
+def generate_launch_description():
+    mission_config = LaunchConfiguration("mission_config")
+
+    return LaunchDescription(
+        [
+            DeclareLaunchArgument(
+                "mission_config",
+                default_value=PathJoinSubstitution(
+                    [FindPackageShare("my_px4_offboard"), "config", "hover.yaml"]
+                ),
+                description="Absolute path to a mission parameter file.",
+            ),
+            Node(
+                package="my_px4_offboard",
+                executable="standard_mission",
+                name="standard_mission",
+                output="screen",
+                parameters=[mission_config],
+            ),
+        ]
     )
-
-    use_sim_time_arg = DeclareLaunchArgument(
-        'use_sim_time',
-        default_value='true',
-        description='Whether to use ROS 2 simulated time.',
-    )
-
-    standard_node = Node(
-        package='my_px4_offboard',
-        executable='standard_mission_node',
-        name='standard_mission_node',
-        output='screen',
-        parameters=[
-            {'use_sim_time': LaunchConfiguration('use_sim_time')},
-            {'mission_config': LaunchConfiguration('mission_config')},
-        ],
-    )
-
-    return LaunchDescription([
-        mission_config_arg,
-        use_sim_time_arg,
-        standard_node,
-    ])

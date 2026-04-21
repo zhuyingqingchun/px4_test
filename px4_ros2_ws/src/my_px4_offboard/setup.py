@@ -1,3 +1,4 @@
+from glob import glob
 from setuptools import setup
 
 package_name = "my_px4_offboard"
@@ -9,6 +10,8 @@ setup(
     data_files=[
         ("share/ament_index/resource_index/packages", [f"resource/{package_name}"]),
         (f"share/{package_name}", ["package.xml"]),
+        (f"share/{package_name}/launch", glob("launch/*.launch.py")),
+        (f"share/{package_name}/config", glob("config/*.yaml")),
     ],
     install_requires=["setuptools"],
     zip_safe=True,
@@ -20,6 +23,7 @@ setup(
         "console_scripts": [
             "offboard_takeoff_hover = my_px4_offboard.offboard_takeoff_hover:main",
             "offboard_trajectory = my_px4_offboard.offboard_trajectory:main",
+            "standard_mission = my_px4_offboard.standard_mission_node:main",
         ],
     },
 )

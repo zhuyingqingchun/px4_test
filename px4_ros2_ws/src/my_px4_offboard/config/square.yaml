@@ -1,23 +1,16 @@
-mission:
-  name: square_demo
-  type: square
-  frame: local_ned
-
-vehicle:
-  takeoff_height_m: 2.0
-  hover_duration_s: 3.0
-  landing_height_m: 0.15
-
-safety:
-  max_height_m: 5.0
-  mission_timeout_s: 120.0
-  require_heartbeat: true
-  require_odometry: true
-
-trajectory:
-  center_x_m: 0.0
-  center_y_m: 0.0
-  altitude_m: 2.0
-  side_length_m: 1.0
-  dwell_s: 2.0
-  yaw_rad: 0.0
+standard_mission:
+  ros__parameters:
+    mission_type: "square"
+    takeoff_height_m: 3.0
+    yaw_deg: 0.0
+    setpoint_rate_hz: 20.0
+    prestream_count: 20
+    takeoff_hold_sec: 4.0
+    hover_hold_sec: 0.0
+    post_mission_hold_sec: 3.0
+    square_side_length_m: 2.0
+    square_leg_duration_sec: 4.0
+    square_repeat_count: 1
+    command_retry_sec: 1.0
+    auto_land: true
+    enable_debug_trace: false
