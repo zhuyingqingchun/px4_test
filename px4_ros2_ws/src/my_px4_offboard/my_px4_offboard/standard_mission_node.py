@@ -430,7 +430,14 @@ class StandardMissionNode(Node):
                 self.land()
                 self.last_land_request_sec = now_sec
 
-            if self.vehicle_status is not None and not self.is_armed():
+            # 判断降落完成：已disarmed 或 高度接近地面且垂直速度接近0
+            landed_by_arm = self.vehicle_status is not None and not self.is_armed()
+            landed_by_height = (
+                self.local_position is not None
+                and abs(self.local_position.z) < 0.3  # 高度 < 0.3m
+                and abs(self.local_position.vz) < 0.1  # 垂直速度 < 0.1m/s
+            )
+            if landed_by_arm or landed_by_height:
                 self.set_state(MissionState.COMPLETE)
 
     def active_setpoint(self) -> Tuple[float, float, float]:
