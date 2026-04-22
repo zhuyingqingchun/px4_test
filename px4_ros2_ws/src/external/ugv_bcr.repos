@@ -1,0 +1,5 @@
+repositories:
+  bcr_bot:
+    type: git
+    url: https://github.com/blackcoffeerobotics/bcr_bot.git
+    version: ros2-jazzy
