@@ -43,41 +43,77 @@ This repository **does not include** the following dependencies (as they are mai
 ├── .git/                          # Git repository
 ├── .gitignore
 ├── LICENSE
-├── README.md
+├── README.md                      # This file
 ├── PROJECT_STRUCTURE.md           # Project structure documentation
 │
-├── px4_ros2_ws/                  # ROS 2 workspace
+├── px4_ros2_ws/                   # ROS 2 workspace
 │   └── src/
-│       ├── my_px4_offboard/      # Custom offboard control package (UAV)
+│       ├── my_px4_offboard/       # UAV offboard control package
 │       │   ├── my_px4_offboard/
 │       │   │   ├── __init__.py
-│       │   │   ├── offboard_takeoff_hover.py   # Takeoff & hover control
-│       │   │   ├── offboard_trajectory.py      # Trajectory following control
-│       │   │   └── standard_mission_node.py    # Standard mission executor
-│       │   ├── config/                         # Mission configs
-│       │   ├── launch/                         # Launch files
-│       │   └── package.xml
-│       └── air_ground_playground/  # Air-ground coordination (UAV + UGV)
-│           ├── air_ground_playground/
-│           │   └── ground_robot_commander.py   # UGV command publisher
-│           ├── config/                         # UGV trajectory configs
-│           └── launch/
-│               ├── air_ground_minimal.launch.py    # UAV+UGV together
-│               └── vendor_diffbot_only.launch.py   # UGV only
+│       │   │   ├── standard_mission_node.py    # Main mission executor
+│       │   │   ├── mission_executor.py         # Mission execution logic
+│       │   │   ├── offboard_state_machine.py   # State machine implementation
+│       │   │   ├── trajectory_library.py       # Trajectory generation
+│       │   │   ├── px4_state_monitor.py        # PX4 state monitoring
+│       │   │   ├── safety_guard.py             # Safety checks
+│       │   │   ├── offboard_takeoff_hover.py   # Basic takeoff & hover
+│       │   │   └── offboard_trajectory.py      # Trajectory following
+│       │   ├── config/
+│       │   │   ├── hover.yaml                  # Hover mission config
+│       │   │   └── square.yaml                 # Square trajectory config
+│       │   ├── launch/
+│       │   │   └── offboard_standard_mission.launch.py
+│       │   ├── test/
+│       │   │   └── test_trajectory_library.py
+│       │   ├── package.xml
+│       │   ├── setup.py
+│       │   └── README_standard_mission.md
+│       │
+│       ├── air_ground_playground/ # Air-ground coordination (UAV + UGV)
+│       │   ├── air_ground_playground/
+│       │   │   ├── __init__.py
+│       │   │   └── ground_robot_commander.py   # UGV command publisher
+│       │   ├── config/
+│       │   │   ├── rover_square.yaml           # UGV square trajectory
+│       │   │   └── rover_out_and_back.yaml     # UGV out-and-back trajectory
+│       │   ├── launch/
+│       │   │   ├── air_ground_minimal.launch.py         # UAV+UGV together
+│       │   │   ├── vendor_diffbot_only.launch.py        # UGV only (mock)
+│       │   │   └── air_ground_with_vendor_diffbot.launch.py
+│       │   ├── scripts/
+│       │   │   └── fetch_vendor_diffbot.sh     # Fetch external deps script
+│       │   ├── resource/
+│       │   ├── package.xml
+│       │   ├── setup.py
+│       │   └── README_minimal_platform.md
+│       │
+│       ├── external/              # External dependencies (not in git)
+│       │   ├── ugv_open_source.repos           # vcs import manifest
+│       │   └── README_external_dependencies.md
+│       │
+│       ├── gz_ros2_control/       # External: Gazebo ROS 2 Control
+│       └── ros2_control_demos/    # External: ROS 2 Control Demos (DiffBot)
 │
-├── px4sh/                        # Session management scripts
-│   ├── start.sh                  # Start simulation session (Agent + PX4/Gazebo + ROS)
-│   ├── stop.sh                   # Stop all services
-│   ├── restart.sh                # Restart services
-│   ├── common.sh                 # Shared functions & tmux session management
+├── px4sh/                         # Session management scripts
+│   ├── start.sh                   # Start simulation session
+│   ├── stop.sh                    # Stop all services
+│   ├── restart.sh                 # Restart services
+│   ├── common.sh                  # Shared functions & tmux management
 │   ├── config.env                 # Local configuration
-│   ├── README_minimal.md         # Minimal scripts documentation
+│   ├── logs/                      # Session logs
+│   │   └── archive/
+│   └── README_minimal.md
 │
-├── px4_session_logs/             # Session logs (committed)
-│   └── YYYY-MM-DD_HH-MM-SS/     # Timestamped session directories
-├── .px4_minimal_run/             # Runtime metadata
-├── patch/                        # Patches for reference
-└── Micro-XRCE-DDS-Agent/         # External DDS agent (cloned)
+├── patch/                         # Patch files and documentation
+│   ├── ugv_open_source.repos
+│   ├── fetch_vendor_diffbot.sh
+│   ├── px4_test_第16轮_接入真实开源差速小车模型补丁方案.md
+│   └── ...
+│
+├── px4_session_logs/              # Session logs (committed)
+├── .px4_minimal_run/              # Runtime metadata
+└── Micro-XRCE-DDS-Agent/          # External DDS agent (cloned)
 ```
 
 ## Quick Start
