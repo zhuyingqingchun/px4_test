@@ -1,18 +1,17 @@
 # 外部依赖说明
 
-本目录包含接入真实开源差速小车模型所需的外部依赖。
+本目录包含“**Gazebo 里可见的小车模型**”所需的最小外部依赖。
 
 ## 依赖列表
 
-### 1. gz_ros2_control
+### 1. gz_ros2_control 仓库
 - **用途**: Modern Gazebo 与 ros2_control 的官方集成
 - **版本**: Jazzy
-- **镜像源**: ghproxy.com 加速
+- **包含内容**:
+  - `gz_ros2_control`
+  - `gz_ros2_control_demos`（内含 Gazebo 可见的 DiffBot / Tricycle / Ackermann / Mecanum 示例）
 
-### 2. ros2_control_demos
-- **用途**: 包含 DiffBot 差速小车示例
-- **版本**: Jazzy
-- **镜像源**: ghproxy.com 加速
+> 注意：`gz_ros2_control_demos` **不需要单独再克隆仓库**，它就在 `gz_ros2_control` 这个仓库里。
 
 ## 系统依赖安装
 
@@ -37,15 +36,24 @@ cd ~/PX4_pro/px4_ros2_ws/src
 vcs import . < external/ugv_open_source.repos
 ```
 
-## DiffBot 关键文件位置
+或者使用工作空间内脚本：
 
-拉取后，DiffBot 相关文件位于:
-- `ros2_control_demos/example_2/`: DiffBot 描述和配置
-- `ros2_control_demos/example_2/bringup/launch/`: 启动文件
-- `ros2_control_demos/example_2/bringup/config/`: 控制器配置
-- `ros2_control_demos/example_2/description/urdf/`: URDF/Xacro 模型
+```bash
+cd ~/PX4_pro/px4_ros2_ws/src/air_ground_playground/scripts
+./fetch_vendor_gz_diffbot.sh
+```
+
+## Gazebo 可见 DiffBot 关键文件位置
+
+拉取后，DiffBot 相关文件位于：
+
+- `gz_ros2_control/gz_ros2_control_demos/launch/diff_drive_example.launch.py`
+- `gz_ros2_control/gz_ros2_control_demos/config/diff_drive_controller.yaml`
+- `gz_ros2_control/gz_ros2_control_demos/urdf/test_diff_drive.xacro`
+
+这些文件才是“**Gazebo 世界里能真正看到小车**”的最小官方示例入口。
 
 ## 参考文档
 
 - [gz_ros2_control 文档](https://control.ros.org/jazzy/doc/gz_ros2_control/doc/index.html)
-- [ros2_control_demos](https://github.com/ros-controls/ros2_control_demos)
+- [gz_ros2_control GitHub 仓库](https://github.com/ros-controls/gz_ros2_control)

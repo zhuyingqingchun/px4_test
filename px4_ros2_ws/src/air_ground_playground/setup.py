@@ -23,6 +23,7 @@ setup(
     entry_points={
         "console_scripts": [
             "ground_robot_commander = air_ground_playground.ground_robot_commander:main",
+            "twist_to_twist_stamped_bridge = air_ground_playground.twist_to_twist_stamped_bridge:main",
         ],
     },
 )
