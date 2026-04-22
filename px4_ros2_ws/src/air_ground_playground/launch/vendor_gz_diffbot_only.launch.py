@@ -54,7 +54,7 @@ def generate_launch_description():
         ]
     )
 
-    # Only spawn entity when launching Gazebo ourselves
+    # Spawn entity when launching Gazebo ourselves (use_gz=true)
     gz_spawn_entity = Node(
         package='ros_gz_sim',
         executable='create',
@@ -62,6 +62,16 @@ def generate_launch_description():
         arguments=['-topic', 'robot_description', '-name',
                    'diff_drive', '-allow_renaming', 'true'],
         condition=IfCondition(use_gz),
+    )
+
+    # Spawn entity when Gazebo is already running (use_gz=false) - delayed
+    gz_spawn_entity_delayed = Node(
+        package='ros_gz_sim',
+        executable='create',
+        output='screen',
+        arguments=['-topic', 'robot_description', '-name',
+                   'diff_drive', '-allow_renaming', 'true'],
+        condition=UnlessCondition(use_gz),
     )
 
     # Controller spawners - version for when we launch Gazebo (triggered by spawn)
@@ -122,7 +132,7 @@ def generate_launch_description():
         gz_launch,
         # Bridge (only when launching Gazebo)
         bridge,
-        # Spawn entity (only when launching Gazebo)
+        # Spawn entity (when launching Gazebo ourselves)
         gz_spawn_entity,
         # Controller spawners - triggered by gz_spawn_entity completion (when use_gz=true)
         RegisterEventHandler(
@@ -137,17 +147,24 @@ def generate_launch_description():
                 on_exit=[diff_drive_base_controller_spawner_triggered],
             )
         ),
-        # Controller spawners - delayed start (when use_gz=false)
-        # Use TimerAction to give time for robot_state_publisher to start
+        # Spawn entity + Controller spawners - delayed start (when use_gz=false)
+        # Use TimerAction to give time for Gazebo and robot_state_publisher to be ready
         TimerAction(
-            period=3.0,
+            period=2.0,
+            actions=[
+                gz_spawn_entity_delayed,
+            ],
+            condition=UnlessCondition(use_gz),
+        ),
+        TimerAction(
+            period=4.0,
             actions=[
                 joint_state_broadcaster_spawner_delayed,
             ],
             condition=UnlessCondition(use_gz),
         ),
         TimerAction(
-            period=5.0,
+            period=6.0,
             actions=[
                 diff_drive_base_controller_spawner_delayed,
             ],
