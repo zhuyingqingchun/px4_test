@@ -7,8 +7,8 @@ for use when Gazebo is already running (e.g., from PX4).
 
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription, OpaqueFunction
-from launch.actions import RegisterEventHandler
-from launch.conditions import IfCondition
+from launch.actions import RegisterEventHandler, TimerAction
+from launch.conditions import IfCondition, UnlessCondition
 from launch.event_handlers import OnProcessExit
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import Command, FindExecutable, LaunchConfiguration, PathJoinSubstitution
@@ -54,20 +54,23 @@ def generate_launch_description():
         ]
     )
 
+    # Only spawn entity when launching Gazebo ourselves
     gz_spawn_entity = Node(
         package='ros_gz_sim',
         executable='create',
         output='screen',
         arguments=['-topic', 'robot_description', '-name',
                    'diff_drive', '-allow_renaming', 'true'],
+        condition=IfCondition(use_gz),
     )
 
-    joint_state_broadcaster_spawner = Node(
+    # Controller spawners - version for when we launch Gazebo (triggered by spawn)
+    joint_state_broadcaster_spawner_triggered = Node(
         package='controller_manager',
         executable='spawner',
         arguments=['joint_state_broadcaster'],
     )
-    diff_drive_base_controller_spawner = Node(
+    diff_drive_base_controller_spawner_triggered = Node(
         package='controller_manager',
         executable='spawner',
         arguments=[
@@ -77,12 +80,31 @@ def generate_launch_description():
         ],
     )
 
-    # Bridge
+    # Controller spawners - version for when Gazebo is already running (delayed start)
+    joint_state_broadcaster_spawner_delayed = Node(
+        package='controller_manager',
+        executable='spawner',
+        arguments=['joint_state_broadcaster'],
+        condition=UnlessCondition(use_gz),
+    )
+    diff_drive_base_controller_spawner_delayed = Node(
+        package='controller_manager',
+        executable='spawner',
+        arguments=[
+            'diff_drive_base_controller',
+            '--param-file',
+            robot_controllers,
+        ],
+        condition=UnlessCondition(use_gz),
+    )
+
+    # Bridge - only when we launch Gazebo
     bridge = Node(
         package='ros_gz_bridge',
         executable='parameter_bridge',
         arguments=['/clock@rosgraph_msgs/msg/Clock[gz.msgs.Clock'],
-        output='screen'
+        output='screen',
+        condition=IfCondition(use_gz),
     )
 
     # Gazebo launch (conditional)
@@ -98,20 +120,39 @@ def generate_launch_description():
     ld = LaunchDescription([
         # Launch gazebo environment (optional)
         gz_launch,
+        # Bridge (only when launching Gazebo)
+        bridge,
+        # Spawn entity (only when launching Gazebo)
+        gz_spawn_entity,
+        # Controller spawners - triggered by gz_spawn_entity completion (when use_gz=true)
         RegisterEventHandler(
             event_handler=OnProcessExit(
                 target_action=gz_spawn_entity,
-                on_exit=[joint_state_broadcaster_spawner],
+                on_exit=[joint_state_broadcaster_spawner_triggered],
             )
         ),
         RegisterEventHandler(
             event_handler=OnProcessExit(
-                target_action=joint_state_broadcaster_spawner,
-                on_exit=[diff_drive_base_controller_spawner],
+                target_action=joint_state_broadcaster_spawner_triggered,
+                on_exit=[diff_drive_base_controller_spawner_triggered],
             )
         ),
-        bridge,
-        gz_spawn_entity,
+        # Controller spawners - delayed start (when use_gz=false)
+        # Use TimerAction to give time for robot_state_publisher to start
+        TimerAction(
+            period=3.0,
+            actions=[
+                joint_state_broadcaster_spawner_delayed,
+            ],
+            condition=UnlessCondition(use_gz),
+        ),
+        TimerAction(
+            period=5.0,
+            actions=[
+                diff_drive_base_controller_spawner_delayed,
+            ],
+            condition=UnlessCondition(use_gz),
+        ),
         # Launch Arguments
         DeclareLaunchArgument(
             'use_sim_time',
